@@ -88,3 +88,7 @@ fhir.Condition = {
 
     // What should we do with D.MAIN_OR_SECONDARY
 }
+
+// The remaining tables will be mapped to the following FHIR resources:
+// csv.Observation -> fhir.Observation
+// csv.Procedure -> fhir.Procedure
