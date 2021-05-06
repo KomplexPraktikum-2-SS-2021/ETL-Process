@@ -1,0 +1,90 @@
+
+
+// patient
+
+let P = csv.patient
+
+fhir.Patient = {
+
+    identifier: [{
+        value: P.id
+    }],
+
+    name: [{
+        given: [P.first_name],
+        family: P.last_name
+    }],
+
+    gender: MATCH(P.sex) {
+        case "m": "male",
+        case "f": "female",
+        case "w": "female"
+    },
+
+    birthDate: DATE(P.date_of_birth),
+
+    address: [{
+        line: [P.street],
+        postalCode: P.zip,
+        city: P.city
+    }]
+}
+
+
+// case
+
+let C = csv.case
+
+fhir.Encounter = {
+    
+    identifier: [{
+        value: C.id
+    }],
+
+    status: "finished", // is that right?
+
+    class: ???, // don't know what to write here
+
+    subject: [{
+        // unsure about references
+        type: "Patient",
+        reference: "Patient/" + C.patient_id
+    }],
+
+    period: {
+        start: DATETIME(C.admission),
+        end: DATETIME(C.discharge)
+    }
+
+}
+
+
+let D = csv.diagnosis
+
+fhir.Condition = {
+
+
+    subject: {
+        type: "Patient",
+        reference: "Patient/" + FIND(case WHERE case.id == D.case_id).patient_id,
+    },
+
+    encounter: {
+        type: "Encounter",
+        reference: "Encounter/" + D.case_id
+    },
+
+    code: {
+        coding: {
+            system: D.system, // an url is required, what should we enter here? 
+            version: D.version,
+            code: D.code,
+            display: D.type
+        },
+        text: ??? // what is this? same as coding.display? do we need this?
+    },
+
+    category: "encounter-diagnosis", // is this right?
+
+    // What should we do with D.MAIN_OR_SECONDARY
+}
