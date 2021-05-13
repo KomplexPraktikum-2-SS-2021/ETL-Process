@@ -89,6 +89,49 @@ fhir.Condition = {
     // What should we do with D.MAIN_OR_SECONDARY
 }
 
+/*
+
+LOINC Polysomnograpgy Panel: https://loinc.org/90568-7/
+LOINC Mappings:
+
+Aponoe Index          
+Hypnopnoe Index      
+RERA Index           
+AHI                  
+RDI                  
+RDI/AHI ???
+Alter                
+Schlaflatenz (min)
+totale Schlafzeit    
+
+
+
+Apnoe Index (n/h)           -> 90562-0 (Apnea index) [/h]
+Hypnopnoe Index (n/h)       -> 90561-2 (Hypopnea index) [/h]
+RERA Index (n/h)            -> 90565-3 (Respiratory effort-related arousal index) [/h]
+AHI                         -> 69990-0 (Apnea hypopnea index 24 hour) [n/h] ???
+  >> OR                        -> 90564-6 (Central apnea hypopnea index) [/h]
+RDI                         -> 90566-1 (Respiratory disturbance index) [/h]
+RDI / AHI (n/h)             ???
+Alter (Jahre)               -> 30525-0 (Age)
+Arousal Index (n/h)         ???
+Schnarchzeit (min)          ???
+totale Schlafzeit (min)     -> 93832-4 (Sleep duration)
+Schnarchen Total (%TST)     ???
+PLM Index                   ???
+
+*/
+
+let O = csv.Observation
+
+fhir.Observation = {
+    
+    status: "final",
+
+    code: 
+}
+
+
 // The remaining tables will be mapped to the following FHIR resources:
 // csv.Observation -> fhir.Observation
 // csv.Procedure -> fhir.Procedure
