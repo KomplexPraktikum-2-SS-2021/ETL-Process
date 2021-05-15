@@ -1,6 +1,6 @@
 
 
-// patient
+// Patient
 
 let P = csv.patient
 
@@ -31,7 +31,7 @@ fhir.Patient = {
 }
 
 
-// case
+// Case / Encounter
 
 let C = csv.case
 
@@ -62,6 +62,7 @@ fhir.Encounter = {
 
 }
 
+// Diagnosos/Condition
 
 let D = csv.diagnosis
 
@@ -116,16 +117,57 @@ fhir.Condition = {
     PLM Index                   ???
 */
 
+
+// Observation
+
 let O = csv.Observation
+let column = {
+    "Apnoe Index (n/h)"
+    "Hypnopnoe Index (n/h)"
+    "RERA Index (n/h)"
+    "AHI"
+    "RDI"
+    "RDI / AHI (n/h)"
+    "Schlaflatenz (min)"
+    "Alter (Jahre)"
+    "Arousal Index (n/h)"
+    "Schnarchzeit (min)"
+    "totale Schlafzeit (min)"
+    "Schnarchen Total (%TST)"
+    "PLM Index"
+}
 
 fhir.Observation = {
     
     status: "final",
 
-    code: 
+    code: {
+        coding: [{
+            system: "http://loinc.org",
+            version: "2.69",
+            code: RESOLVE_CODE(column)
+        }]
+    }, // is code need here? its redundant to the value code!
+
+    encounter: {
+        type: "Encounter",
+        reference: "Encounter/" + FIND(case WHERE case.id == RESOLVE_PROCEDURE(O.procedure_id).case_id) //guess the first column is procedure_id
+    }
+
+    "valueQuantity" : {
+        value: O[column],
+        unit: RESOLVE_UNIT(column),
+        code: {
+            system: "http://loinc.org",
+            version: "2.69",
+            code: RESOLVE_CODE(column)
+        }
+    },
 }
 
 
+
+// Procedure
 
 let Pr = csv.Procedure
 
@@ -156,7 +198,3 @@ fhir.procedure = {
         }]
     }
 }
-
-
-// The remaining tables will be mapped to the following FHIR resources:
-// csv.Observation -> fhir.Observation
