@@ -83,14 +83,14 @@ fhir.Condition = {
     },
 
     code: {
-        coding: {
+        coding: [{
             !ASSERT D.sytem == "ICD-10-GM" AND D.version == "2020"
             system: "http://fhir.de/CodeSystem/dimdi/icd-10-gm", // an url is required, what should we enter here? 
             version: "2020",
             code: D.code,
             display: D.type
-        },
-        text: ??? // what is this? same as coding.display? do we need this?
+        }],
+        text: D.type // what is this? same as coding.display? do we need this?
     },
 
     category: "encounter-diagnosis", // is this right?
