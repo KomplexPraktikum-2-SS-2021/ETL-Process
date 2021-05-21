@@ -6,13 +6,13 @@ class CSV_Loader:
 
     def __init__(self):
 
-        self.date_parser = lambda x : datetime.strptime(x, '%Y-%m-%d %H:%M:%S')
+        self.main_path = '../data/'
 
-        self.data_paths = { 'cases' : '../data/SL_1_Cases.csv',
-                            'observations' : '../data/sample_data/sample_measurement.csv',
-                            'patients' : '../data/sample_data/sample_person.csv',
-                            'conditions' : '../data/sample_data/sample_procedure_occurrence.csv'}
-        
+        self.data_paths = { 'cases' : self.main_path + 'SL_1_Cases.csv',
+                            'observations' : self.main_path + 'SL_1_Observation.csv',
+                            'patients' : self.main_path + 'SL_1_Patients.csv',
+                            'conditions' : self.main_path + 'SL_1_Diagnose.csv',
+                            'procedures' : self.main_path + 'SL_1_Procedures.csv'}
 
     # Uses ; as delimiter
     def load_table(self, str_table):
