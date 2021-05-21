@@ -1,0 +1,12 @@
+name: KP_MedInf_FHIR
+channels:
+  - defaults
+dependencies:
+  - python=3.9
+  - numpy
+  - matplotlib
+  - pandas
+  - ipython
+  - pip:
+    - fhir-resources==6.1.0
+    - fhirclient==3.2.0
