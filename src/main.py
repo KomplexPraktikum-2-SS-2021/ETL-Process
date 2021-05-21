@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -7,6 +8,7 @@ from fhirclient import client
 from fhirclient import server
 
 from csv_loader import CSV_Loader
+from etl_process import EtlProcess
 from object_creator import Object_Creator
 
 
@@ -41,6 +43,7 @@ def main():
         # Creating and Sending FHIR Elements
         for ind in range(0, act_dataframe.shape[0]):
             df_row = act_dataframe.iloc[ind]
+            print(type(df_row))
             if (index == 0):
                 fhir_element = object_creator.create_fhirDic(header_list[index], df_row)
             else:
@@ -60,5 +63,17 @@ def main():
         print ('Encounter URL: ', 'Encounter/' + server_resources[index]['resource']['id'])
 
 
+def main2():
+    logging.basicConfig(level=logging.INFO)
+
+    process = EtlProcess(smart_server)
+    process.load_all()
+
+    # Output of all Encounter Elements
+    server_resources = smart_server.request_json(path=res_list[len(res_list)-1])['entry']
+    for index in range (0, len(server_resources)):
+        print ('Encounter URL: ', 'Encounter/' + server_resources[index]['resource']['id'])
+
+
 if __name__ == '__main__':
-    main()
+    main2()
