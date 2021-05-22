@@ -3,8 +3,9 @@ from logging import warn
 from typing import *
 from fhirclient.models.coding import Coding
 from fhirclient.models.quantity import Quantity
+from resurce_name import ResourceName
 if TYPE_CHECKING:
-    from etl_process import ResourceName
+    pass
 
 import pandas as pd
 import numpy as np
@@ -105,7 +106,7 @@ class ObjectCreator:
     @staticmethod
     def _construct_identifier(identifier: str) -> List[Identifier]:
         ident = Identifier()
-        ident.value = identifier
+        ident.value = str(identifier)
 
         return [ident]
 
@@ -131,9 +132,15 @@ class ObjectCreator:
         period.start = ObjectCreator._parse_date_time(case_row.admission)
         period.end = ObjectCreator._parse_date_time(case_row.discharge)
 
+        class_fhir = Coding()
+        class_fhir.system = 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
+        class_fhir.version = '2018-08-12'
+        class_fhir.code = 'IMP'
+
         encounter = Encounter()
         encounter.identifier = ObjectCreator._construct_identifier(case_row.id)
         encounter.resource_type = 'Encounter'
+        encounter.class_fhir = class_fhir
         encounter.status = 'finished'
         encounter.period = period
         encounter.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)

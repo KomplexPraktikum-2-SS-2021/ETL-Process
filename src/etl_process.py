@@ -2,22 +2,14 @@ from __future__ import annotations
 from typing import *
 
 from csv_loader import CSV_Loader
-from object_creator import ObjectCreator, Object_Creator
+from object_creator import ObjectCreator
 if TYPE_CHECKING:
     from fhirclient.server import FHIRServer
-from enum import Enum
 from logging import debug, warn
+from resurce_name import ResourceName
 
-class ResourceName(Enum):
-    PATIENT = 'Patient'
-    ENCOUNTER = 'Encounter'
-    OBSERVATION = 'Observation' 
-    PROCEDURE = 'Procedure' 
-    CONDITION = 'Condition' 
 
 csv_loader = CSV_Loader()
-object_creator = Object_Creator()
-
 class EtlProcess:
 
     def __init__(self, server: FHIRServer):
