@@ -99,20 +99,25 @@ fhir.Condition = {
 }
 
 /*
+    FORMAT:
+    <column_name>  ->  <loinc_code> (<loinc_name>) [<ucum_unit>]
+
+    One can validate ucum units under:
+    https://ucum.nlm.nih.gov/ucum-lhc/demo.html 
+
     LOINC Polysomnograpgy Panel: https://loinc.org/90568-7/
     LOINC Mappings:
 
-    Apnoe Index (n/h)           -> 90562-0 (Apnea index) [/h]
-    Hypnopnoe Index (n/h)       -> 90561-2 (Hypopnea index) [/h]
-    RERA Index (n/h)            -> 90565-3 (Respiratory effort-related arousal index) [/h]
-    AHI                         -> 69990-0 (Apnea hypopnea index 24 hour) [n/h] ???
-    >> OR                        -> 90564-6 (Central apnea hypopnea index) [/h]
-    RDI                         -> 90566-1 (Respiratory disturbance index) [/h]
+    Apnoe Index (n/h)           -> 90562-0 (Apnea index) [{events}/h]
+    Hypnopnoe Index (n/h)       -> 90561-2 (Hypopnea index) [{events}/h]
+    RERA Index (n/h)            -> 90565-3 (Respiratory effort-related arousal index) [{events}/h]
+    AHI                         -> 69990-0 (Apnea hypopnea index 24 hour) [{events}/h]
+    RDI                         -> 90566-1 (Respiratory disturbance index) [{events}/h]
     RDI / AHI (n/h)             ???
-    Alter (Jahre)               -> 30525-0 (Age)
+    Alter (Jahre)               -> 30525-0 (Age) [a]
     Arousal Index (n/h)         ???
     Schnarchzeit (min)          ???
-    totale Schlafzeit (min)     -> 93832-4 (Sleep duration)
+    totale Schlafzeit (min)     -> 93832-4 (Sleep duration) [min]
     Schnarchen Total (%TST)     ???
     PLM Index                   ???
 */
