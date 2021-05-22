@@ -2,7 +2,7 @@ from __future__ import annotations
 from typing import *
 
 from csv_loader import CSV_Loader
-from object_creator import Object_Creator
+from object_creator import ObjectCreator, Object_Creator
 if TYPE_CHECKING:
     from fhirclient.server import FHIRServer
 from enum import Enum
@@ -50,7 +50,7 @@ class EtlProcess:
     def _load_patients(self):
         df = csv_loader.load_table('patients')
         for row_label, row in df.iterrows():
-            fhir_element = object_creator.create_fhirDic('patients', row)
+            fhir_element = ObjectCreator.create_patient(row)
             self.server.post_json(path=ResourceName.PATIENT.value, resource_json=fhir_element.as_json())
 
 
@@ -58,7 +58,7 @@ class EtlProcess:
         df = csv_loader.load_table('cases')
         for row_label, row in df.iterrows():
             ref_id = self._find_reference_id(ResourceName.PATIENT, row['patient_id'])
-            fhir_element = object_creator.create_fhirDic('cases', row, ref_id)
+            fhir_element = ObjectCreator.create_encounter(row, ref_id)
             self.server.post_json(path=ResourceName.ENCOUNTER.value, resource_json=fhir_element.as_json())
 
     def _load_observations(self):
