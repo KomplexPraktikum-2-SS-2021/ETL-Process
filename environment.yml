@@ -9,4 +9,3 @@ dependencies:
   - ipython
   - pip:
     - fhir-resources==6.1.0
-    - fhirclient==3.2.0

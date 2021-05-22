@@ -12,3 +12,9 @@ Clone this project, change in this directory and run the server by using:
 docker run -p 8080:8080 hapiproject/hapi:latest
 ```
 Then you can start the main.py script
+
+## Get version 4.0.0 for the fhirclient python module:
+Just run: 
+```bash
+python -m pip install https://github.com/smart-on-fhir/client-py/archive/refs/tags/v4.0.0.tar.gz
+```
