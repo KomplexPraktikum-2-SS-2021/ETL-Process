@@ -30,6 +30,7 @@ from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.reference import Reference
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.observation import Observation
+from fhirclient.models.procedure import Procedure
 
 
 class ObjectCreator:
@@ -180,7 +181,7 @@ class ObjectCreator:
         condition = Condition()
         condition.identifier = ObjectCreator._construct_identifier(diagnose_row.id)
         condition.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
-        # encounter property is missing !
+        # TODO: Encounter is missing here!
         condition.code = code
         condition.category = 'encounter-diagnosis'
 
@@ -213,8 +214,31 @@ class ObjectCreator:
             observation.status = 'final'
             observation.code = code
             observation.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
+            # TODO: Encounter is missing here!
             observation.valueQuantity = quantity
 
             observation_list.append(observation)
 
         return observation_list
+
+    @staticmethod
+    def create_procedure(procedure_row: pd.Series, subject_ref_id) -> Procedure:
+        assert procedure_row.code_system == 'OPS'
+        assert procedure_row.code_version == '2020'
+
+        coding = Coding()
+        coding.system = 'http://fhir.de/CodeSystem/dimdi/ops' 
+        coding.version = '2020'
+        coding.code = procedure_row.code
+
+        code = CodeableConcept()
+        code.coding = [coding]
+
+        procedure = Procedure()
+        procedure.identifier = ObjectCreator._construct_identifier(procedure_row.id)
+        procedure.status = 'completed'
+        procedure.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
+        # TODO: Encounter is missing here!
+        procedure.code = code
+
+        return procedure
