@@ -1,6 +1,8 @@
 from __future__ import annotations
+from logging import warn
 from typing import *
 from fhirclient.models.coding import Coding
+from fhirclient.models.quantity import Quantity
 if TYPE_CHECKING:
     from etl_process import ResourceName
 
@@ -27,9 +29,26 @@ from fhirclient.models.address import Address
 from fhirclient.models.fhirreference import FHIRReference
 from fhirclient.models.reference import Reference
 from fhirclient.models.codeableconcept import CodeableConcept
+from fhirclient.models.observation import Observation
 
 
 class ObjectCreator:
+
+    _observation_loinc_mapping_dict: Dict[str, Tuple[str, str, str]] = {
+        'Apnoe Index (n/h)':        ('90562-0', '{events}/h',   'Apnea index'),
+        'Hypnopnoe Index (n/h)':    ('90561-2', '{events}/h',   'Hypopnea index'),
+        'RERA Index (n/h)':         ('90565-3', '{events}/h',   'Respiratory effort-related arousal index'),
+        'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
+        'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
+        'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
+        'Schlaflatenz (min)':       ('',        'min',          ''),
+        'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
+        'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
+        'Schnarchzeit (min)':       ('',        'min',          ''),
+        'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
+        'Schnarchen Total (%TST)':  ('',        '%',            ''),
+        'PLM Index':                ('',        '',             ''),
+    }
 
     # ------------------------------ Helper Methods ------------------------------ #
 
@@ -89,7 +108,18 @@ class ObjectCreator:
 
         return [ident]
 
+    @staticmethod
+    def _resolve_observation_column(column_name: str) -> Tuple[str, str]:
 
+        if column_name not in ObjectCreator._observation_loinc_mapping_dict.keys():
+            raise Exception(f'Invalid column name: "{column_name}"')
+
+        code, unit = ObjectCreator._observation_loinc_mapping_dict[column_name]
+
+        if code == '':
+            warn(f'Code is unknown for column name: "{column_name}"')
+
+        return ObjectCreator._observation_loinc_mapping_dict[column_name]
 
     # --------------------------- Object create methods -------------------------- #
 
@@ -155,3 +185,36 @@ class ObjectCreator:
         condition.category = 'encounter-diagnosis'
 
         return condition
+
+    @staticmethod
+    def create_observation(observation_row: pd.Series, subject_ref_id: str) -> List[Observation]:
+        observation_list: List[Observation] = []
+
+        for column_name, (obs_loinc_code, unit, display) in ObjectCreator._observation_loinc_mapping_dict:
+
+            if obs_loinc_code == '':
+                warn(f'Code is unknown for column name: "{column_name}"')
+
+            coding = Coding()
+            coding.system = 'http://loinc.org'
+            coding.version = '2.69'
+            coding.code = obs_loinc_code
+            coding.display = display
+
+            code = CodeableConcept()
+            code.coding = [coding]
+
+            quantity = Quantity()
+            quantity.value = observation_row[column_name]
+            quantity.unit = unit
+            code = coding
+
+            observation = Observation()
+            observation.status = 'final'
+            observation.code = code
+            observation.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
+            observation.valueQuantity = quantity
+
+            observation_list.append(observation)
+
+        return observation_list
