@@ -28,7 +28,6 @@ from fhirclient.models.identifier import Identifier
 from fhirclient.models.humanname import HumanName
 from fhirclient.models.address import Address
 from fhirclient.models.fhirreference import FHIRReference
-from fhirclient.models.reference import Reference
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.observation import Observation
 from fhirclient.models.procedure import Procedure
@@ -95,7 +94,7 @@ class ObjectCreator:
             raise Exception(f'Unknown gender code {gender}')
 
     @staticmethod
-    def _construct_reference(resource_name: ResourceName, ref_id: str) -> Reference:
+    def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
         resource_str = resource_name.value
 
         ref = FHIRReference()
@@ -184,10 +183,13 @@ class ObjectCreator:
         return encounter
 
 
-    def create_condition(self, diagnose_row: pd.Series, subject_ref_id, encounter_ref_id) -> Condition:
+    def create_condition(self, diagnose_row: pd.Series, subject_ref: FHIRReference, encounter_ref_id: str) -> Condition:
 
-        assert diagnose_row.sytem == 'ICD-10-GM'
-        assert diagnose_row.version == '2020'
+        system = str(diagnose_row.system)
+        version = str(diagnose_row.version)
+
+        assert system == 'ICD-10-GM', f'Expected system "ICD-10-GM" does not match "{system}"'
+        assert  version == '2020', f'Expected version "2020" does not match "{version}"'
 
         coding = Coding()
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
@@ -201,10 +203,10 @@ class ObjectCreator:
         condition = Condition()
         condition.meta = self._get_tagged_meta()
         condition.identifier = ObjectCreator._construct_identifier(diagnose_row.id)
-        condition.subject = self._construct_reference(ResourceName.PATIENT, subject_ref_id)
+        condition.subject = subject_ref
         condition.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         condition.code = code
-        condition.category = 'encounter-diagnosis'
+        # condition.category = 'encounter-diagnosis'
 
         return condition
 
