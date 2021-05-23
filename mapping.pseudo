@@ -93,7 +93,7 @@ fhir.Condition = {
         text: D.type // what is this? same as coding.display? do we need this?
     },
 
-    category: "encounter-diagnosis", // is this right?
+    // category: "encounter-diagnosis", // is this right?
 
     // What should we do with D.MAIN_OR_SECONDARY
 }

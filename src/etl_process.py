@@ -76,11 +76,20 @@ class EtlProcess:
             fhir_element = self.object_creator.create_condition(row, subject_ref, encounter_ref_id)
             self.server.post_json(path=ResourceName.CONDITION.value, resource_json=fhir_element.as_json())
 
+    def _load_procedures(self):
+        df = csv_loader.load_table('procedures')
+        for row_label, row in df.iterrows():
+            encounter_ref_id = self._find_reference_id(ResourceName.ENCOUNTER, row['case_id'])
+            
+            encounter = self._get_resource(ResourceName.ENCOUNTER, encounter_ref_id)
+            subject_ref = FHIRReference(encounter['subject'])
+            
+            fhir_element = self.object_creator.create_procedure(row, subject_ref, encounter_ref_id)
+            self.server.post_json(path=ResourceName.PROCEDURE.value, resource_json=fhir_element.as_json())
+
     def _load_observations(self):
         raise NotImplementedError()
 
-    def _load_procedures(self):
-        raise NotImplementedError()
 
 
     # ------------------------------ Public Methods ------------------------------ #
@@ -89,3 +98,4 @@ class EtlProcess:
         self._load_patients()
         self._load_encounters()
         self._load_conditions()
+        self._load_procedures()

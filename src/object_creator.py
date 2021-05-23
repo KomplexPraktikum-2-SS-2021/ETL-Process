@@ -246,9 +246,14 @@ class ObjectCreator:
         return observation_list
 
 
-    def create_procedure(self, procedure_row: pd.Series, subject_ref_id, encounter_ref_id) -> Procedure:
-        assert procedure_row.code_system == 'OPS'
-        assert procedure_row.code_version == '2020'
+    def create_procedure(self, procedure_row: pd.Series, subject_ref: FHIRReference, encounter_ref_id: str) -> Procedure:
+       
+        system = str(procedure_row.code_system)
+        version = str(procedure_row.code_version)
+
+        assert system == 'OPS', f'Expected system "OPS" does not match "{system}"'
+        assert version == '2020', f'Expected version "2020" does not match "{version}"'
+       
 
         coding = Coding()
         coding.system = 'http://fhir.de/CodeSystem/dimdi/ops' 
@@ -262,7 +267,7 @@ class ObjectCreator:
         procedure.meta = self._get_tagged_meta()
         procedure.identifier = ObjectCreator._construct_identifier(procedure_row.id)
         procedure.status = 'completed'
-        procedure.subject = self._construct_reference(ResourceName.PATIENT, subject_ref_id)
+        procedure.subject = subject_ref
         procedure.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         procedure.code = code
 
