@@ -38,18 +38,18 @@ class ObjectCreator:
 
     _observation_loinc_mapping_dict: Dict[str, Tuple[str, str, str]] = {
         'Apnoe Index (n/h)':        ('90562-0', '{events}/h',   'Apnea index'),
-        'Hypnopnoe Index (n/h)':    ('90561-2', '{events}/h',   'Hypopnea index'),
+        'Hypnopnoe�Index (n/h)':    ('90561-2', '{events}/h',   'Hypopnea index'),
         'RERA Index (n/h)':         ('90565-3', '{events}/h',   'Respiratory effort-related arousal index'),
         'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
-        'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
-        'Schlaflatenz (min)':       ('',        'min',          ''),
+        # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
+        # 'Schlaflatenz (min)':       ('',        'min',          ''),
         'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
-        'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
-        'Schnarchzeit (min)':       ('',        'min',          ''),
+        # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
+        # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
-        'Schnarchen Total (%TST)':  ('',        '%',            ''),
-        'PLM Index':                ('',        '',             ''),
+        # 'Schnarchen Total (%TST)':  ('',        '%',            ''),
+        # 'PLM Index':                ('',        '',             ''),
     }
 
     # ------------------------------ Helper Methods ------------------------------ #
@@ -211,10 +211,10 @@ class ObjectCreator:
         return condition
 
 
-    def create_observation(self, observation_row: pd.Series, encounter_ref_id: str) -> List[Observation]:
+    def create_observation(self, observation_row: pd.Series, subject_ref: FHIRReference, encounter_ref: FHIRReference) -> List[Observation]:
         observation_list: List[Observation] = []
 
-        for column_name, (obs_loinc_code, unit, display) in ObjectCreator._observation_loinc_mapping_dict:
+        for column_name, (obs_loinc_code, unit, display) in ObjectCreator._observation_loinc_mapping_dict.items():
 
             if obs_loinc_code == '':
                 warn(f'Code is unknown for column name: "{column_name}"')
@@ -229,16 +229,18 @@ class ObjectCreator:
             code.coding = [coding]
 
             quantity = Quantity()
-            quantity.value = observation_row[column_name]
+            quantity.value = float(observation_row[column_name].replace(".", "").replace(",", "."))
             quantity.unit = unit
-            code = coding
+            quantity.code = obs_loinc_code
+            quantity.system = 'http://loinc.org'
 
             observation = Observation()
             # no identifier here!
             observation.meta = self._get_tagged_meta()
             observation.status = 'final'
             observation.code = code
-            observation.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
+            observation.encounter = encounter_ref
+            observation.subject = subject_ref
             observation.valueQuantity = quantity
 
             observation_list.append(observation)

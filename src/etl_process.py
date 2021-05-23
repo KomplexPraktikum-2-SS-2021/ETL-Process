@@ -1,5 +1,6 @@
 from __future__ import annotations
 from typing import *
+from fhirclient.models import procedure
 from fhirclient.models.fhirreference import FHIRReference
 
 
@@ -88,7 +89,17 @@ class EtlProcess:
             self.server.post_json(path=ResourceName.PROCEDURE.value, resource_json=fhir_element.as_json())
 
     def _load_observations(self):
-        raise NotImplementedError()
+        df = csv_loader.load_table('observations')
+        for row_label, row in df.iterrows():
+            procedure_ref_id = self._find_reference_id(ResourceName.PROCEDURE, row[0])
+            
+            procedure = self._get_resource(ResourceName.PROCEDURE, procedure_ref_id)
+            subject_ref = FHIRReference(procedure['subject'])
+            encounter_ref = FHIRReference(procedure['encounter'])
+            
+            fhir_elements = self.object_creator.create_observation(row, subject_ref, encounter_ref)
+            for observation in fhir_elements:
+                self.server.post_json(path=ResourceName.OBSERVATION.value, resource_json=observation.as_json())
 
 
 
@@ -99,3 +110,4 @@ class EtlProcess:
         self._load_encounters()
         self._load_conditions()
         self._load_procedures()
+        self._load_observations()
