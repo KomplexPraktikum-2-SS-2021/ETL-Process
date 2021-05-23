@@ -32,6 +32,7 @@ from fhirclient.models.reference import Reference
 from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.observation import Observation
 from fhirclient.models.procedure import Procedure
+from fhirclient.models.meta import Meta
 
 
 class ObjectCreator:
@@ -123,33 +124,21 @@ class ObjectCreator:
 
         return ObjectCreator._observation_loinc_mapping_dict[column_name]
 
+    def _get_tagged_meta(self) -> Meta:
+        tag = Coding()
+        tag.code = self.tag
+
+        meta = Meta()
+        meta.tag = [tag]
+
+        return meta
+
+    def __init__(self, tag: str) -> None:
+        self.tag = tag
+
     # --------------------------- Object create methods -------------------------- #
 
-    @staticmethod
-    def create_encounter(case_row: pd.Series, subject_ref_id: str) -> Encounter:
-
-        period = Period()
-        period.start = ObjectCreator._parse_date_time(case_row.admission)
-        period.end = ObjectCreator._parse_date_time(case_row.discharge)
-
-        class_fhir = Coding()
-        class_fhir.system = 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
-        class_fhir.version = '2018-08-12'
-        class_fhir.code = 'IMP'
-
-        encounter = Encounter()
-        encounter.identifier = ObjectCreator._construct_identifier(case_row.id)
-        encounter.resource_type = 'Encounter'
-        encounter.class_fhir = class_fhir
-        encounter.status = 'finished'
-        encounter.period = period
-        encounter.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
-
-        return encounter
-
-
-    @staticmethod
-    def create_patient(patient_row: pd.Series) -> Patient:
+    def create_patient(self, patient_row: pd.Series) -> Patient:
 
         name = HumanName()
         name.given = [patient_row.first_name]
@@ -161,6 +150,8 @@ class ObjectCreator:
         address.city = patient_row.city
 
         patient = Patient()
+        patient.meta = self._get_tagged_meta()
+        patient.id = str(patient_row.id)
         patient.identifier = ObjectCreator._construct_identifier(patient_row.id)
         patient.name = [name]
         patient.gender = ObjectCreator._map_gender(patient_row.sex)
@@ -170,8 +161,30 @@ class ObjectCreator:
         return patient
 
 
-    @staticmethod
-    def create_condition(diagnose_row: pd.Series, subject_ref_id, encounter_ref_id) -> Condition:
+    def create_encounter(self, case_row: pd.Series, subject_ref_id: str) -> Encounter:
+
+        period = Period()
+        period.start = ObjectCreator._parse_date_time(case_row.admission)
+        period.end = ObjectCreator._parse_date_time(case_row.discharge)
+
+        class_fhir = Coding()
+        class_fhir.system = 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
+        class_fhir.version = '2018-08-12'
+        class_fhir.code = 'IMP'
+
+        encounter = Encounter()
+        encounter.meta = self._get_tagged_meta()
+        encounter.identifier = ObjectCreator._construct_identifier(case_row.id)
+        encounter.resource_type = 'Encounter'
+        encounter.class_fhir = class_fhir
+        encounter.status = 'finished'
+        encounter.period = period
+        encounter.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
+
+        return encounter
+
+
+    def create_condition(self, diagnose_row: pd.Series, subject_ref_id, encounter_ref_id) -> Condition:
 
         assert diagnose_row.sytem == 'ICD-10-GM'
         assert diagnose_row.version == '2020'
@@ -180,22 +193,23 @@ class ObjectCreator:
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
         coding.code = diagnose_row.code
-        coding.display: diagnose_row.type
+        coding.display = diagnose_row.type
 
         code = CodeableConcept()
         code.coding = [coding]
 
         condition = Condition()
+        condition.meta = self._get_tagged_meta()
         condition.identifier = ObjectCreator._construct_identifier(diagnose_row.id)
-        condition.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
-        # TODO: Encounter is missing here!
+        condition.subject = self._construct_reference(ResourceName.PATIENT, subject_ref_id)
+        condition.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         condition.code = code
         condition.category = 'encounter-diagnosis'
 
         return condition
 
-    @staticmethod
-    def create_observation(observation_row: pd.Series, subject_ref_id: str) -> List[Observation]:
+
+    def create_observation(self, observation_row: pd.Series, encounter_ref_id: str) -> List[Observation]:
         observation_list: List[Observation] = []
 
         for column_name, (obs_loinc_code, unit, display) in ObjectCreator._observation_loinc_mapping_dict:
@@ -218,18 +232,19 @@ class ObjectCreator:
             code = coding
 
             observation = Observation()
+            # no identifier here!
+            observation.meta = self._get_tagged_meta()
             observation.status = 'final'
             observation.code = code
-            observation.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
-            # TODO: Encounter is missing here!
+            observation.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
             observation.valueQuantity = quantity
 
             observation_list.append(observation)
 
         return observation_list
 
-    @staticmethod
-    def create_procedure(procedure_row: pd.Series, subject_ref_id) -> Procedure:
+
+    def create_procedure(self, procedure_row: pd.Series, subject_ref_id, encounter_ref_id) -> Procedure:
         assert procedure_row.code_system == 'OPS'
         assert procedure_row.code_version == '2020'
 
@@ -242,10 +257,11 @@ class ObjectCreator:
         code.coding = [coding]
 
         procedure = Procedure()
+        procedure.meta = self._get_tagged_meta()
         procedure.identifier = ObjectCreator._construct_identifier(procedure_row.id)
         procedure.status = 'completed'
-        procedure.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
-        # TODO: Encounter is missing here!
+        procedure.subject = self._construct_reference(ResourceName.PATIENT, subject_ref_id)
+        procedure.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         procedure.code = code
 
         return procedure
