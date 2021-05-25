@@ -1,3 +1,4 @@
+import logging
 import pandas as pd
 import numpy as np
 from datetime import datetime
@@ -7,7 +8,9 @@ from fhirclient import client
 from fhirclient import server
 
 from csv_loader import CSV_Loader
-from object_creator import Object_Creator
+from etl_process import EtlProcess
+
+import uuid
 
 
 # None is only used to work through the algorithm
@@ -24,40 +27,19 @@ smart = client.FHIRClient(settings=settings)
 smart_server = server.FHIRServer(client=smart, base_uri='http://localhost:8080/fhir/')
 
 csv_loader = CSV_Loader()
-object_creator = Object_Creator()
 
-def find_ref_element(a_list, row_ref_id):
-    for index in range(0, len(a_list)):
-        if (int(a_list[index]['resource']['identifier'][0]['value']) == row_ref_id):
-            return a_list[index]['resource']
-
-
-## ETL PROCESS
 def main():
+    logging.basicConfig(level=logging.INFO)
 
-    for index in range(0, len(header_list)):
-        act_dataframe = csv_loader.load_table(header_list[index])
+    tag = str(uuid.uuid4())
 
-        # Creating and Sending FHIR Elements
-        for ind in range(0, act_dataframe.shape[0]):
-            df_row = act_dataframe.iloc[ind]
-            if (index == 0):
-                fhir_element = object_creator.create_fhirDic(header_list[index], df_row)
-            else:
-                # GET-Request of all FHIR Elements (Dictionary), selected by res_list
-                # res.entry is a list and has many entries (all encounters on server)
-                server_resources = smart_server.request_json(path=res_list[index])['entry']
-                ref_element = find_ref_element(server_resources, df_row[field_names[index]])
-                fhir_element = object_creator.create_fhirDic(header_list[index], df_row, ref_element['id'])
-            
-            # POST Request
-            smart_server.post_json(path=res_list[index + 1],resource_json=fhir_element.as_json())
-
-    server_resources = smart_server.request_json(path=res_list[len(res_list)-1])['entry']
+    process = EtlProcess(smart_server, tag)
+    process.load_all()
 
     # Output of all Encounter Elements
-    for index in range (0, len(server_resources)):
-        print ('Encounter URL: ', 'Encounter/' + server_resources[index]['resource']['id'])
+    # server_resources = smart_server.request_json(path=res_list[len(res_list)-1])['entry']
+    # for index in range (0, len(server_resources)):
+    #     print ('Encounter URL: ', 'Encounter/' + server_resources[index]['resource']['id'])
 
 
 if __name__ == '__main__':
