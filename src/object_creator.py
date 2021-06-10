@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 import pandas as pd
 import numpy as np
+import math
 import re
 from datetime import datetime
 from time import gmtime, strftime
@@ -44,7 +45,7 @@ class ObjectCreator:
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
         # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
         # 'Schlaflatenz (min)':       ('',        'min',          ''),
-        'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
+        # 'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
         # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
         # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
@@ -90,12 +91,18 @@ class ObjectCreator:
 
     @staticmethod
     def _map_gender(gender: str) -> str:
-        if gender == "m":
+        if gender == "m" or gender == "männlich" or gender == "maennlich" or gender == "male":
             return "male"
-        elif gender == "f" or gender == "w":
+        elif gender == "f" or gender == "w" or gender == "weiblich" or gender == "female":
             return "female"
         else:
             raise Exception(f'Unknown gender code {gender}')
+    @staticmethod
+    def _set_status(discharge: str) -> str:
+        if (discharge == discharge):
+            return 'finished'
+        else:
+            return 'in-progress'
 
     @staticmethod
     def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
@@ -168,7 +175,10 @@ class ObjectCreator:
 
         period = Period()
         period.start = ObjectCreator._parse_date_time(case_row.admission)
-        period.end = ObjectCreator._parse_date_time(case_row.discharge)
+        
+        # if datetime is nan... nan-values are not equals to itself
+        if (case_row.discharge == case_row.discharge):
+            period.end = ObjectCreator._parse_date_time(case_row.discharge)
 
         class_fhir = Coding()
         class_fhir.system = 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
@@ -180,7 +190,7 @@ class ObjectCreator:
         encounter.identifier = ObjectCreator._construct_identifier(case_row.id)
         encounter.resource_type = 'Encounter'
         encounter.class_fhir = class_fhir
-        encounter.status = 'finished'
+        encounter.status = ObjectCreator._set_status(case_row.discharge)
         encounter.period = period
         encounter.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
 
@@ -198,7 +208,7 @@ class ObjectCreator:
         coding = Coding()
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
-        coding.code = ObjectCreator._convert_string(diagnose_row.code)
+        coding.code = ObjectCreator._convert_string(str(diagnose_row.code))
         coding.display = ObjectCreator._convert_string(diagnose_row.type)
 
         code = CodeableConcept()
