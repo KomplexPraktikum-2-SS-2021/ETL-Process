@@ -55,15 +55,19 @@ class ObjectCreator:
     # ------------------------------ Helper Methods ------------------------------ #
 
     @staticmethod
-    def _parse_date_time(datetime_str: str) -> FHIRDate:
+    def _parse_date_time(datetime_str: str, case_tz='01:00') -> FHIRDate:
 
         # Splitting into yyyy-mm-dd and hh:mm:ss.zzz
         # Adding T between
         case_date = str(datetime_str).split(' ', maxsplit=-1)[0]                                 # yyyy-mm-dd
         case_time = str(datetime_str).split(' ', maxsplit=-1)[1].split('.', maxsplit=-1)[0]      # hh:mm:ss
         case_ms = str(datetime_str).split(' ', maxsplit=-1)[1].split('.', maxsplit=-1)[1][:3]    # miliseconds
-        case_tz = strftime('%z', gmtime())[:3] + ':' + strftime('%z', gmtime())[1:-2]       # timezone...germany = 00:00
-        return FHIRDate(case_date + 'T' + case_time + '.' + case_ms + case_tz)
+        # case_tz = strftime('%z', gmtime())[:3] + ':' + strftime('%z', gmtime())[1:-2]       # timezone...germany = 01:00
+        return FHIRDate(case_date + 'T' + case_time + '.' + case_ms + '+' + case_tz)
+
+    @staticmethod
+    def _convert_string(actual_string: str) -> str:
+        return actual_string.replace('"', '')
 
     @staticmethod
     def _parse_date(date_str: str) -> FHIRDate:
@@ -194,8 +198,8 @@ class ObjectCreator:
         coding = Coding()
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
-        coding.code = diagnose_row.code
-        coding.display = diagnose_row.type
+        coding.code = ObjectCreator._convert_string(diagnose_row.code)
+        coding.display = ObjectCreator._convert_string(diagnose_row.type)
 
         code = CodeableConcept()
         code.coding = [coding]

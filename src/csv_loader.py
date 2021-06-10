@@ -16,6 +16,6 @@ class CSV_Loader:
 
     # Uses ; as delimiter
     def load_table(self, str_table):
-        data_df = pd.read_csv(self.data_paths[str_table], sep=';')
+        data_df = pd.read_csv(self.data_paths[str_table], sep=';', encoding='unicode_escape')
         return data_df
 
