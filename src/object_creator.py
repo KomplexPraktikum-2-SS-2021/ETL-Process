@@ -45,7 +45,6 @@ class ObjectCreator:
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
         # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
         # 'Schlaflatenz (min)':       ('',        'min',          ''),
-        # 'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
         # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
         # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
