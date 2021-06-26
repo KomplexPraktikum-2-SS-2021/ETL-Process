@@ -45,7 +45,7 @@ class ObjectCreator:
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
         # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
         # 'Schlaflatenz (min)':       ('',        'min',          ''),
-        # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
+        # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''), # Drop this!
         # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
         # 'Schnarchen Total (%TST)':  ('',        '%',            ''),
@@ -98,7 +98,7 @@ class ObjectCreator:
             raise Exception(f'Unknown gender code {gender}')
     @staticmethod
     def _set_status(discharge: str) -> str:
-        if (discharge == discharge):
+        if pd.notna(discharge):
             return 'finished'
         else:
             return 'in-progress'
@@ -172,11 +172,13 @@ class ObjectCreator:
 
     def create_encounter(self, case_row: pd.Series, subject_ref_id: str) -> Encounter:
 
+        # Construct period
+        # From FHIR documentation:
+        # "If the end element is missing, it means that the period is ongoing, or the start may be in the past,
+        # and the end date in the future, which means that period is expected/planned to end at the specified time"
         period = Period()
         period.start = ObjectCreator._parse_date_time(case_row.admission)
-        
-        # if datetime is nan... nan-values are not equals to itself
-        if (case_row.discharge == case_row.discharge):
+        if pd.notna(case_row.discharge):
             period.end = ObjectCreator._parse_date_time(case_row.discharge)
 
         class_fhir = Coding()
