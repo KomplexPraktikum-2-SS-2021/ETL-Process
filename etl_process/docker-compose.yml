@@ -1,0 +1,32 @@
+version: "3.3"
+   
+services:
+  fhir-server:
+    image: hapiproject/hapi:v5.3.0
+    ports:
+    - 8080:8080
+      
+  etl-process:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: tail -f /dev/null
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    volumes:
+      - .:/app
+    depends_on:
+      - fhir-server
+
+
+# Uncommend to use pgadmin:
+
+  # pgadmin:
+  #   image: dpage/pgadmin4
+  #   container_name: pgadmin
+  #   environment:
+  #     PGADMIN_DEFAULT_EMAIL: 1234@admin.com
+  #     PGADMIN_DEFAULT_PASSWORD: 1234
+  #     PGADMIN_LISTEN_PORT: 5050
+  #   ports:
+  #     - "5050:5050"

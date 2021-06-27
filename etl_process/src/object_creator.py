@@ -9,6 +9,7 @@ if TYPE_CHECKING:
 
 import pandas as pd
 import numpy as np
+import math
 import re
 from datetime import datetime
 from time import gmtime, strftime
@@ -42,15 +43,20 @@ class ObjectCreator:
         'RERA Index (n/h)':         ('90565-3', '{events}/h',   'Respiratory effort-related arousal index'),
         'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
-        # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
+        # 'RDI / AHI (n/h)':          <--- This should be recomputed from RDI and AHI
         # 'Schlaflatenz (min)':       ('',        'min',          ''),
-        'Alter (Jahre)':            ('30525-0', 'a',            'Age'),
-        # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''),
+        # 'Arousal Index (n/h)':      <---- Drop this!
         # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
         # 'Schnarchen Total (%TST)':  ('',        '%',            ''),
         # 'PLM Index':                ('',        '',             ''),
     }
+
+    _observation_snomedct_mapping_dict: Dict[str, Tuple[str, str, str]] = {
+        'PLM Index':                ('418763003',           '',          'Periodic limb movement disorder'),
+        'Schnarchzeit (min)':       ('72863001' ,        'min',          'Snoring'),
+    }
+
 
     # ------------------------------ Helper Methods ------------------------------ #
 
@@ -90,12 +96,18 @@ class ObjectCreator:
 
     @staticmethod
     def _map_gender(gender: str) -> str:
-        if gender == "m":
+        if gender == "m" or gender == "männlich" or gender == "maennlich" or gender == "male":
             return "male"
-        elif gender == "f" or gender == "w":
+        elif gender == "f" or gender == "w" or gender == "weiblich" or gender == "female":
             return "female"
         else:
             raise Exception(f'Unknown gender code {gender}')
+    @staticmethod
+    def _set_status(discharge: str) -> str:
+        if pd.notna(discharge):
+            return 'finished'
+        else:
+            return 'in-progress'
 
     @staticmethod
     def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
@@ -166,9 +178,14 @@ class ObjectCreator:
 
     def create_encounter(self, case_row: pd.Series, subject_ref_id: str) -> Encounter:
 
+        # Construct period
+        # From FHIR documentation:
+        # "If the end element is missing, it means that the period is ongoing, or the start may be in the past,
+        # and the end date in the future, which means that period is expected/planned to end at the specified time"
         period = Period()
         period.start = ObjectCreator._parse_date_time(case_row.admission)
-        period.end = ObjectCreator._parse_date_time(case_row.discharge)
+        if pd.notna(case_row.discharge):
+            period.end = ObjectCreator._parse_date_time(case_row.discharge)
 
         class_fhir = Coding()
         class_fhir.system = 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
@@ -180,7 +197,7 @@ class ObjectCreator:
         encounter.identifier = ObjectCreator._construct_identifier(case_row.id)
         encounter.resource_type = 'Encounter'
         encounter.class_fhir = class_fhir
-        encounter.status = 'finished'
+        encounter.status = ObjectCreator._set_status(case_row.discharge)
         encounter.period = period
         encounter.subject = ObjectCreator._construct_reference(ResourceName.PATIENT, subject_ref_id)
 
@@ -198,7 +215,7 @@ class ObjectCreator:
         coding = Coding()
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
-        coding.code = ObjectCreator._convert_string(diagnose_row.code)
+        coding.code = ObjectCreator._convert_string(str(diagnose_row.code))
         coding.display = ObjectCreator._convert_string(diagnose_row.type)
 
         code = CodeableConcept()
@@ -248,6 +265,10 @@ class ObjectCreator:
             observation.valueQuantity = quantity
 
             observation_list.append(observation)
+
+
+
+
 
         return observation_list
 
