@@ -43,14 +43,20 @@ class ObjectCreator:
         'RERA Index (n/h)':         ('90565-3', '{events}/h',   'Respiratory effort-related arousal index'),
         'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
-        # 'RDI / AHI (n/h)':          ('',        '{events}/h',   ''),
+        # 'RDI / AHI (n/h)':          <--- This should be recomputed from RDI and AHI
         # 'Schlaflatenz (min)':       ('',        'min',          ''),
-        # 'Arousal Index (n/h)':      ('',        '{events}/h',   ''), # Drop this!
+        # 'Arousal Index (n/h)':      <---- Drop this!
         # 'Schnarchzeit (min)':       ('',        'min',          ''),
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
         # 'Schnarchen Total (%TST)':  ('',        '%',            ''),
         # 'PLM Index':                ('',        '',             ''),
     }
+
+    _observation_snomedct_mapping_dict: Dict[str, Tuple[str, str, str]] = {
+        'PLM Index':                ('418763003',           '',          'Periodic limb movement disorder'),
+        'Schnarchzeit (min)':       ('72863001' ,        'min',          'Snoring'),
+    }
+
 
     # ------------------------------ Helper Methods ------------------------------ #
 
@@ -259,6 +265,10 @@ class ObjectCreator:
             observation.valueQuantity = quantity
 
             observation_list.append(observation)
+
+
+
+
 
         return observation_list
 
