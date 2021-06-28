@@ -2,6 +2,34 @@ import React from "react";
 import { FormGroup, InputGroup, Intent } from '@blueprintjs/core';
 import { Button, Card, Elevation } from "@blueprintjs/core";
 import './index.css';
+import FHIR from 'fhirclient';
+import { oauth2 as SMART } from "fhirclient";
+
+
+async function FHIRStuff() {
+    console.log('hi')
+    const client = await SMART.authorize({
+        clientId: "my-client-id",
+        scope: "launch launch/patient patient/read offline_access",
+        redirectUri: "./patient_overview",
+        iss:
+            "https://launch.smarthealthit.org/v/r3/sim/" +
+            "eyJoIjoiMSIsImIiOiJmMDQ2MjkzNi1lYjRiLTRkYT" +
+            "EtYjQ1YS1mYmQ5NmViZjhjY2IiLCJlIjoic21hcnQt" +
+            "UHJhY3RpdGlvbmVyLTcxNjE0NTAyIn0/fhir",
+  
+        // WARNING: completeInTarget=true is needed to make this work
+        // in the codesandbox frame. It is otherwise not needed if the
+        // target is not another frame or window but since the entire
+        // example works in a frame here, it gets confused without
+        // setting this!
+        completeInTarget: true
+    });
+  
+    // const patient = await client.patient.read()
+    // console.log(patient)
+  }
+
 
 export const Login = () => {
     return (
@@ -15,7 +43,12 @@ export const Login = () => {
             >
                 <InputGroup id="text-input" placeholder="User name" />
                 <InputGroup id="text-input" placeholder="Password" />
-                <Button intent={Intent.PRIMARY}>Submit</Button>
+                <Button
+                    intent={Intent.PRIMARY}
+                    onClick={() => FHIRStuff()}>
+                    
+                    Submit
+                </Button>
             </FormGroup>
             </Card>
         </div>
