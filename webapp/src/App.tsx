@@ -3,7 +3,7 @@ import './App.css';
 import { ThemeContext } from './contexts/theme';
 import { Login } from './views/Login';
 import { AppNavbar } from './components/AppNavbar';
-import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { PatientOverview } from './views/PatientOverview';
  
 

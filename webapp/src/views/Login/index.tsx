@@ -1,19 +1,16 @@
-import React from "react";
 import { FormGroup, InputGroup, Intent } from '@blueprintjs/core';
 import { Button, Card, Elevation } from "@blueprintjs/core";
 import './index.css';
-import FHIR from 'fhirclient';
 import { oauth2 as SMART } from "fhirclient";
 
 
 async function FHIRStuff() {
-    console.log('hi')
-    const client = await SMART.authorize({
+    // Add error message on failing authorization
+    await SMART.authorize({
         clientId: "my-client-id",
         scope: "launch launch/patient patient/read offline_access",
         redirectUri: "./patient_overview",
-        iss:
-            "http://localhost:8080/fhir",
+        iss: "http://localhost:8080/fhir",
   
         // WARNING: completeInTarget=true is needed to make this work
         // in the codesandbox frame. It is otherwise not needed if the

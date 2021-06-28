@@ -4,7 +4,6 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {ThemeProvider} from './contexts/theme';
-import FHIR from 'fhirclient';
 
 
 

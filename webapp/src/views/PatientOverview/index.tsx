@@ -1,8 +1,6 @@
 import React, { useState } from "react";
-import { FormGroup, InputGroup, Intent, Spinner } from '@blueprintjs/core';
-import { Button, Card, Elevation, Text } from "@blueprintjs/core";
+import { Intent, Button, Card, Elevation, Text } from '@blueprintjs/core';
 import './index.css';
-import FHIR from 'fhirclient';
 import { oauth2 as SMART } from "fhirclient";
 
 async function getData() {
