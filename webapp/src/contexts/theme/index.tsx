@@ -8,7 +8,7 @@ export const ThemeContext = React.createContext({
 
 export const ThemeProvider = ({ children }: {children: any}) => {
   const [state, dispatch] = React.useReducer(reducer, initialState)
-
+  // TODO: Use local storage to store selected theme
   return (
     <ThemeContext.Provider value={{state, dispatch}}>
     	{ children }

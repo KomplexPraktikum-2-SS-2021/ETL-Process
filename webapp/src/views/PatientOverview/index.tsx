@@ -1,35 +1,42 @@
-import React from "react";
-import { FormGroup, InputGroup, Intent } from '@blueprintjs/core';
-import { Button, Card, Elevation } from "@blueprintjs/core";
+import React, { useState } from "react";
+import { FormGroup, InputGroup, Intent, Spinner } from '@blueprintjs/core';
+import { Button, Card, Elevation, Text } from "@blueprintjs/core";
 import './index.css';
 import FHIR from 'fhirclient';
+import { oauth2 as SMART } from "fhirclient";
 
+async function getData() {
+    console.log('hi')
+    const client = await SMART.ready()
+    const patient = await client.request('Patient/')
+    console.log(patient)
+    return patient.entry
+}
 
 export const PatientOverview = () => {
+   const [state, setState] = useState({patients: [] as any[], loading: true})
+
     return (
-        <div className="Login-card-container">
-            <Card interactive={true} elevation={Elevation.TWO}>
-            <FormGroup
-                // helperText="Helper text with details..."
-                label="Patient Overview"
-                labelFor="text-input"
-                // labelInfo="(required)"
-            >
-                <InputGroup id="text-input" placeholder="User name" />
-                <InputGroup id="text-input" placeholder="Password" />
-                <Button
-                    intent={Intent.PRIMARY}
-                    onClick={() => FHIR.oauth2.authorize({
-                        'redirectUri': '#/foo',
-                        'fhirServiceUrl': 'localhost:8080/foo',
-                        "client_id": "foo",
-                        "scope": "patient/*.read"
-                      })}>
-                    
-                    Submit
-                </Button>
-            </FormGroup>
-            </Card>
+        <div className="PatientOverview-container">
+            {/* {state.loading ? <Spinner/> : null} */}
+            <Button
+                intent={Intent.PRIMARY}
+                onClick={async () => {
+                    setState({loading: true, patients: state.patients})
+                    setState({patients: await getData(), loading: false})
+                
+                }}>
+                
+                Submit
+            </Button>
+            {
+                state.patients.map((patient, idx) => (
+                        <Card elevation={Elevation.TWO} className="PatientOverview-patient-card">
+                            <Text key={idx}>{patient.resource.name[0].family}</Text>
+                        </Card>
+                ))
+            }
+
         </div>
     )
 }

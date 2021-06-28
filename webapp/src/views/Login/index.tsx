@@ -13,10 +13,7 @@ async function FHIRStuff() {
         scope: "launch launch/patient patient/read offline_access",
         redirectUri: "./patient_overview",
         iss:
-            "https://launch.smarthealthit.org/v/r3/sim/" +
-            "eyJoIjoiMSIsImIiOiJmMDQ2MjkzNi1lYjRiLTRkYT" +
-            "EtYjQ1YS1mYmQ5NmViZjhjY2IiLCJlIjoic21hcnQt" +
-            "UHJhY3RpdGlvbmVyLTcxNjE0NTAyIn0/fhir",
+            "http://localhost:8080/fhir",
   
         // WARNING: completeInTarget=true is needed to make this work
         // in the codesandbox frame. It is otherwise not needed if the
