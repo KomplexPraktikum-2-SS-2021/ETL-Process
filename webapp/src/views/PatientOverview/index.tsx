@@ -1,9 +1,10 @@
-import React, { useState } from "react";
-import { Intent, Button, Card, Elevation, Text, FormGroup, InputGroup, ControlGroup, Switch, Tooltip, Classes, Position } from '@blueprintjs/core';
+import { useEffect, useState } from "react";
+import { FormGroup, InputGroup, ControlGroup, Switch, Tooltip, Classes, Position } from '@blueprintjs/core';
 import './index.css';
 import { oauth2 as SMART } from "fhirclient";
 import { PatientTable } from '../../components/PatientTable'
 import { Patient, Bundle } from 'fhir/r4';
+import { Tooltip2 } from '@blueprintjs/popover2';
 
 
 async function getData() {
@@ -17,7 +18,17 @@ async function getData() {
 }
 
 export const PatientOverview = () => {
-   const [state, setState] = useState({patients: [] as Patient[], loading: true})
+   const [state, setState] = useState({
+       onlyActive: true,
+       patients: [] as Patient[],
+       loading: true
+    })
+
+    useEffect(() => {
+        if(state.loading) {
+            getData().then(patients => setState({...state, patients: patients, loading: false}))
+        } 
+    }, [state.loading])
 
     return (
         <div className="PatientOverview-container">
@@ -29,17 +40,20 @@ export const PatientOverview = () => {
             >
                 <ControlGroup fill={true} vertical={false}>
                     <InputGroup placeholder="Find filters..." />
-                    <Button icon="filter">Filter</Button>
+                    {/* <Button icon="filter">Filter</Button> */}
                 </ControlGroup>
-                <Switch labelElement={(
-                    <div>Only show <Tooltip
+                <Switch 
+                    checked={state.onlyActive}
+                    onChange={event => {setState({...state, onlyActive: !state.onlyActive, loading: true})}}
+                    labelElement={(
+                    <div>Only show <Tooltip2
                         className={Classes.TOOLTIP_INDICATOR}
                         position={Position.RIGHT}
                         content={<span>BRRAAAIINS</span>}>
                         active patients
-                        </Tooltip>
+                        </Tooltip2>
                     </div>)} />
-                <Button
+                {/* <Button
                     intent={Intent.PRIMARY}
                     onClick={async () => {
                         setState({loading: true, patients: state.patients})
@@ -47,7 +61,7 @@ export const PatientOverview = () => {
                     
                     }}>
                     Submit
-            </Button>
+            </Button> */}
             </FormGroup>
             <PatientTable patients={state.patients}/>
             
