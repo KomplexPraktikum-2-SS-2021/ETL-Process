@@ -1,17 +1,18 @@
 .App {
   text-align: center;
+}
 
-  
+.App * {
+  transition: background-color 0.2s ease-in-out;
+  /* transition: color 0.2s ease-in-out; */
 }
 
 .App-view-container {
   min-height: calc(100vh - 50px);
   display: flex;
-
   /* color: white; */
 }
 
-.bp3-dark {
-  
+.bp3-dark .App-view-container {
   background-color: #394b59;
 }

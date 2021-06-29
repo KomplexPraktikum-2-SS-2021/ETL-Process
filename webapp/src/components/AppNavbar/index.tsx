@@ -2,7 +2,7 @@ import React from 'react';
 import { Alignment, Button, Navbar } from "@blueprintjs/core";
 import { ThemeContext } from '../../contexts/theme';
 import { useHistory } from "react-router-dom";
- 
+import './index.css'
 
 export const AppNavbar = () => {
     const {state, dispatch} = React.useContext(ThemeContext) 
@@ -13,7 +13,7 @@ export const AppNavbar = () => {
             <Navbar.Group align={Alignment.LEFT}>
                 <Navbar.Heading
                     onClick={()=>history.push('/')}
-                    style={{fontSize: 24, fontFamily: 'PoiretOne-Regular', cursor: 'pointer'}}>
+                    className="AppNavbar-logo">
                     SomnoSearch
                 </Navbar.Heading>
                 <Navbar.Divider />

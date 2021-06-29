@@ -1,0 +1,35 @@
+
+.AppNavbar-logo {
+    font-size: 24px;
+    font-family: 'PoiretOne-Regular';
+    cursor: pointer;
+    transition: text-shadow, transform .2s ease-in-out;
+
+}
+
+.AppNavbar-logo:hover {
+    transform: scale(1.12);
+    /* animation: shake 0.5s; */
+    
+    /* When the animation is finished, start again */
+    /* animation-iteration-count: 1; */
+    text-shadow: 0 0 3px rgb(91, 62, 255);
+}
+
+@keyframes shake {
+    10%, 90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    
+    20%, 80% {
+      transform: translate3d(2px, 0, 0);
+    }
+  
+    30%, 50%, 70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+  
+    40%, 60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
