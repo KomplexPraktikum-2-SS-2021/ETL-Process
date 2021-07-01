@@ -109,6 +109,15 @@ class ObjectCreator:
         else:
             return 'in-progress'
 
+    # returns, if the condition was recorded, when patient was discharged/admitted
+    @staticmethod
+    def _set_condition_type(cond_type: str) -> str:
+        cond_type = ObjectCreator._convert_string(cond_type)
+        if (cond_type == 'Aufnahmediagnose'):
+            return 'discharge'
+        else:
+            return 'admission'
+
     @staticmethod
     def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
         resource_str = resource_name.value
@@ -227,6 +236,7 @@ class ObjectCreator:
         condition.subject = subject_ref
         condition.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         condition.code = code
+        condition.note = ObjectCreator._set_condition_type(diagnose_row.type)
         # condition.category = 'encounter-diagnosis'
 
         return condition
