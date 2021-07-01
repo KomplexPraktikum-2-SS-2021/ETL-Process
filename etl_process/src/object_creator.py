@@ -58,6 +58,19 @@ class ObjectCreator:
         'Schnarchzeit (min)':       ('72863001' ,        'min',          'Snoring'),
     }
 
+    _condition_description_dict: Dict[str, str] = {
+        'G25.81' : 'Syndrom der unruhigen Beine', #Restless-Legs-Syndrom
+        'G47.2' : 'Störungen des Schlaf-Wach-Rhythmus',
+        'G47.31' : 'Obstruktives Schlafapnoesyndrom',
+        'G47.38' : 'Sonstige Schlafapnoe',
+        'G47.39' : 'Schlafapnoe, nicht näher bezeichnet',
+        'G47.4' : 'Narkolepsie und Kataplexie',
+        'G47.8' : 'Sonstige Schlafstörungen',
+        'R06.3' : 'Periodische Atmung',
+        'S06.9' : 'Intrakranielle Verletzung',
+        'F51.0' : 'Nichtorganische Insomnie',
+        'Z85.5' : 'Bösartige Neubildung der Harnorgane in der Eigenanamnese'
+    }
 
     # ------------------------------ Helper Methods ------------------------------ #
 
@@ -228,7 +241,13 @@ class ObjectCreator:
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
         coding.code = ObjectCreator._convert_string(str(diagnose_row.code))
-        coding.display = ObjectCreator._convert_string(diagnose_row.type)
+
+        # Setting condition description
+        cond_code = ObjectCreator._convert_string(str(diagnose_row.code))
+        if cond_code == 'nan':      # empty values are replaced with 'nan' in csv loading process
+            coding.display = ''
+        else:
+            coding.display = ObjectCreator._condition_description_dict[cond_code]
 
         code = CodeableConcept()
         code.coding = [coding]
