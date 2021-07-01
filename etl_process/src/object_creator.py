@@ -33,6 +33,7 @@ from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.observation import Observation
 from fhirclient.models.procedure import Procedure
 from fhirclient.models.meta import Meta
+from fhirclient.models.annotation import Annotation
 
 
 class ObjectCreator:
@@ -113,10 +114,12 @@ class ObjectCreator:
     @staticmethod
     def _set_condition_type(cond_type: str) -> str:
         cond_type = ObjectCreator._convert_string(cond_type)
+        annotation = Annotation()
         if (cond_type == 'Aufnahmediagnose'):
-            return 'discharge'
+            annotation.text = 'admission'
         else:
-            return 'admission'
+            annotation.text = 'discharge'
+        return [annotation];
 
     @staticmethod
     def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
