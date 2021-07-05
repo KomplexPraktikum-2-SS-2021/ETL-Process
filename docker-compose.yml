@@ -1,0 +1,33 @@
+version: "3.3"
+   
+services:
+  fhir-server:
+    image: hapiproject/hapi:v5.3.0
+    ports:
+    - 8080:8080
+      
+  etl-process:
+    build:
+      context: ./etl_process
+      dockerfile: ./Dockerfile
+    command: tail -f /dev/null
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    volumes:
+      - ./etl_process:/app
+    depends_on:
+      - fhir-server
+
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: ./Dockerfile
+    command: npm start
+    stdin_open: true # docker run -i
+    tty: true        # docker run -t
+    volumes:
+      - ./webapp:/app
+    ports:
+      - 3000:3000
+    environment:
+      - CHOKIDAR_USEPOLLING=true    
