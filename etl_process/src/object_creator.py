@@ -33,6 +33,7 @@ from fhirclient.models.codeableconcept import CodeableConcept
 from fhirclient.models.observation import Observation
 from fhirclient.models.procedure import Procedure
 from fhirclient.models.meta import Meta
+from fhirclient.models.annotation import Annotation
 
 
 class ObjectCreator:
@@ -57,6 +58,19 @@ class ObjectCreator:
         'Schnarchzeit (min)':       ('72863001' ,        'min',          'Snoring'),
     }
 
+    _condition_description_dict: Dict[str, str] = {
+        'G25.81' : 'Syndrom der unruhigen Beine', #Restless-Legs-Syndrom
+        'G47.2' : 'Störungen des Schlaf-Wach-Rhythmus',
+        'G47.31' : 'Obstruktives Schlafapnoesyndrom',
+        'G47.38' : 'Sonstige Schlafapnoe',
+        'G47.39' : 'Schlafapnoe, nicht näher bezeichnet',
+        'G47.4' : 'Narkolepsie und Kataplexie',
+        'G47.8' : 'Sonstige Schlafstörungen',
+        'R06.3' : 'Periodische Atmung',
+        'S06.9' : 'Intrakranielle Verletzung',
+        'F51.0' : 'Nichtorganische Insomnie',
+        'Z85.5' : 'Bösartige Neubildung der Harnorgane in der Eigenanamnese'
+    }
 
     # ------------------------------ Helper Methods ------------------------------ #
 
@@ -108,6 +122,17 @@ class ObjectCreator:
             return 'finished'
         else:
             return 'in-progress'
+
+    # returns, if the condition was recorded, when patient was discharged/admitted
+    @staticmethod
+    def _set_condition_type(cond_type: str) -> str:
+        cond_type = ObjectCreator._convert_string(cond_type)
+        annotation = Annotation()
+        if (cond_type == 'Aufnahmediagnose'):
+            annotation.text = 'admission'
+        else:
+            annotation.text = 'discharge'
+        return [annotation];
 
     @staticmethod
     def _construct_reference(resource_name: ResourceName, ref_id: str) -> FHIRReference:
@@ -216,7 +241,13 @@ class ObjectCreator:
         coding.system = 'http://fhir.de/CodeSystem/dimdi/icd-10-gm'
         coding.version = '2020'
         coding.code = ObjectCreator._convert_string(str(diagnose_row.code))
-        coding.display = ObjectCreator._convert_string(diagnose_row.type)
+
+        # Setting condition description
+        cond_code = ObjectCreator._convert_string(str(diagnose_row.code))
+        if cond_code == 'nan':      # empty values are replaced with 'nan' in csv loading process
+            coding.display = ''
+        else:
+            coding.display = ObjectCreator._condition_description_dict[cond_code]
 
         code = CodeableConcept()
         code.coding = [coding]
@@ -227,6 +258,7 @@ class ObjectCreator:
         condition.subject = subject_ref
         condition.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         condition.code = code
+        condition.note = ObjectCreator._set_condition_type(diagnose_row.type)
         # condition.category = 'encounter-diagnosis'
 
         return condition

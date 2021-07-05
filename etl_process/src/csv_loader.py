@@ -20,5 +20,5 @@ class CSV_Loader:
 
     # Uses ; as delimiter
     def load_table(self, str_table):
-        data_df = pd.read_csv(self.data_paths[str_table], sep=';', encoding='utf-8', dtype=self.dtypes[str_table])
+        data_df = pd.read_csv(self.data_paths[str_table], sep=';', encoding='utf-8', dtype=self.dtypes[str_table], na_values='nan')
         return data_df
