@@ -45,17 +45,15 @@ class ObjectCreator:
         'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
         # 'RDI / AHI (n/h)':          <--- This should be recomputed from RDI and AHI
-        # 'Schlaflatenz (min)':       ('',        'min',          ''),
         # 'Arousal Index (n/h)':      <---- Drop this!
-        # 'Schnarchzeit (min)':       ('',        'min',          ''),
+        # 'Schnarchen Total (%TST)':  <--- This should be recomputed from "totale Schlafzeit" and "Schnarchzeit"
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
-        # 'Schnarchen Total (%TST)':  ('',        '%',            ''),
-        # 'PLM Index':                ('',        '',             ''),
     }
 
-    _observation_snomedct_mapping_dict: Dict[str, Tuple[str, str, str]] = {
-        'PLM Index':                ('418763003',           '',          'Periodic limb movement disorder'),
-        'Schnarchzeit (min)':       ('72863001' ,        'min',          'Snoring'),
+    _observation_custom_mapping_dict: Dict[str, Tuple[str, str, str]] = {
+        'Schlaflatenz (min)':       ('Schlaflatenz',     'min',          'Schlaflatenz'),
+        'PLM Index':                ('418763003', '{events}/h',          'PLM Index'),
+        'Schnarchzeit (min)':       ('72863001' ,        'min',          'Schnarchzeit'),
     }
 
     _condition_description_dict: Dict[str, str] = {
@@ -297,9 +295,34 @@ class ObjectCreator:
             observation.valueQuantity = quantity
 
             observation_list.append(observation)
+    
+        for column_name, (obs_custom_code, unit, display) in ObjectCreator._observation_custom_mapping_dict.items():
 
+            if obs_custom_code == '':
+                warn(f'Code is unknown for column name: "{column_name}"')
 
+            coding = Coding()
+            coding.code = obs_custom_code
+            coding.display = display
 
+            code = CodeableConcept()
+            code.coding = [coding]
+
+            quantity = Quantity()
+            quantity.value = float(observation_row[column_name].replace(".", "").replace(",", "."))
+            quantity.unit = unit
+            quantity.code = obs_custom_code
+
+            observation = Observation()
+            # no identifier here!
+            observation.meta = self._get_tagged_meta()
+            observation.status = 'final'
+            observation.code = code
+            observation.encounter = encounter_ref
+            observation.subject = subject_ref
+            observation.valueQuantity = quantity
+
+            observation_list.append(observation)
 
 
         return observation_list

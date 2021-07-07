@@ -1,5 +1,5 @@
-import { Classes, Intent } from '@blueprintjs/core';
-import { Patient, Bundle } from 'fhir/r4';
+import { Classes } from '@blueprintjs/core';
+import { Patient } from 'fhir/r4';
 import './index.css';
 
 interface PatientTableProps {

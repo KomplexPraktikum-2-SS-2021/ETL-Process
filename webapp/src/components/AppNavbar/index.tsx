@@ -1,6 +1,6 @@
 import React from 'react';
 import { Alignment, Button, Navbar } from "@blueprintjs/core";
-import { ThemeContext } from '../../contexts/theme';
+import { ThemeContext } from 'contexts/theme';
 import { useHistory } from "react-router-dom";
 import './index.css'
 
