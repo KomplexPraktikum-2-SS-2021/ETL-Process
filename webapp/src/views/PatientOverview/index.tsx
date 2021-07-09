@@ -3,37 +3,34 @@ import { FormGroup, InputGroup, ControlGroup, Switch, Tooltip, Classes, Position
 import './index.css';
 import { oauth2 as SMART } from "fhirclient";
 import { PatientTable } from 'components/PatientTable'
-import { Patient, Bundle, Condition } from 'fhir/r4';
+import { Patient, Bundle, Condition, Encounter } from 'fhir/r4';
 import { Tooltip2 } from '@blueprintjs/popover2';
-import { DefaultMap } from 'utils/index'
+import { binaryChainReferenceMaps, constructReferenceMap, DefaultMap } from 'utils/index'
 
 
 /**
  * This method fetches the fhir data needed to display the patient overview.
  * It returns an tuple of (1) The list of all patients (2) a map relating a patient (by id) to all his diagnoses
  */
-async function getData(): Promise<[Patient[], Map<string, Condition[]>]> {
+async function getData(): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
     const client = await SMART.ready();
-    const bundle: Bundle = await client.request('Patient/?_revinclude=Condition:subject');
+    const bundle: Bundle = await client.request('Patient/?_revinclude=Encounter:subject&_revinclude:iterate=Condition:encounter');
     console.debug(bundle);
     const bundle_resources = (bundle.entry?.map(entry => entry.resource)) ?? []; // defaulting to empty list if no entry is available
 
     // Filter results
     const patients = bundle_resources.filter(res => res?.resourceType == 'Patient') as Patient[];
     const conditions = bundle_resources.filter(res => res?.resourceType == 'Condition') as Condition[];
-
-    const conditionMap = new DefaultMap<string, Condition[]>(() => []);
+    const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
     
-    conditions.forEach(cond => {
-        const ref = cond.subject.reference;
-        if(ref === undefined) return;
+    const conditionMap = constructReferenceMap(conditions, 'encounter');
+    const encounterMap = constructReferenceMap(encounters, 'subject');
 
-        conditionMap.get(ref).push(cond);
-    })
-
+    console.debug('encounterMap', encounterMap)
     console.debug('conditionMap', conditionMap);
+    console.debug('patient2condition', binaryChainReferenceMaps(encounterMap, conditionMap))
 
-    return [patients, conditionMap];
+    return [patients, conditionMap, encounterMap];
 }
 
 export const PatientOverview = () => {
@@ -41,12 +38,13 @@ export const PatientOverview = () => {
        onlyActive: true,
        patients: [] as Patient[],
        conditions: new Map<string, Condition[]>(),
+       encounterMap: new Map<string, Encounter[]>(),
        loading: true
     })
 
     useEffect(() => {
         if(state.loading) {
-            getData().then(([patients, conditions]) => setState({...state, patients, conditions, loading: false}))
+            getData().then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: false}))
         } 
     }, [state.loading])
 
@@ -83,7 +81,7 @@ export const PatientOverview = () => {
                     Submit
             </Button> */}
             </FormGroup>
-            <PatientTable patients={state.patients}/>
+            <PatientTable patients={state.patients} conditionMap={state.conditions} encounterMap={state.encounterMap}/>
             
         </div>
     )
