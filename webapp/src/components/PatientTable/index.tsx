@@ -1,6 +1,7 @@
 import { Classes } from '@blueprintjs/core';
 import { Patient } from 'fhir/r4';
 import './index.css';
+import { useHistory } from "react-router-dom";
 
 interface PatientTableProps {
     patients: Patient[]
@@ -9,6 +10,9 @@ interface PatientTableProps {
 const EMPTY_CELL_STR = '---';
 
 export const PatientTable = (props: PatientTableProps) => {
+
+    const history = useHistory();
+
     return (
         <div className="PatientTable-container">
             <table className="PatientTable-table">
@@ -25,7 +29,7 @@ export const PatientTable = (props: PatientTableProps) => {
                 {
                     props.patients.length > 0 ?
                     props.patients.map((patient, idx) => (
-                        <tr key={idx}>
+                        <tr key={idx} onClick={()=>history.push(`/patient/${patient.identifier?.[0].value}`, patient.identifier?.[0].value)} >
                             <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
                             <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
                             <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>

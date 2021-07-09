@@ -14,10 +14,10 @@ from etl_process import EtlProcess
 # Create an instance
 settings = {
     'app_id' : 'my_web_app',
-    'api_base' : 'http://fhir-server:8080/fhir/'
+    'api_base' : 'http://localhost:8080/fhir/'
 }
 smart = client.FHIRClient(settings=settings)
-smart_server = server.FHIRServer(client=smart, base_uri='http://fhir-server:8080/fhir/')
+smart_server = server.FHIRServer(client=smart, base_uri='http://localhost:8080/fhir/')
 
 def main():
     logging.basicConfig(level=logging.INFO)

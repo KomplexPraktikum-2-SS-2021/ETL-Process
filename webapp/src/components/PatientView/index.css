@@ -1,0 +1,58 @@
+.patient-view-container {
+    background: #d3d3d3;
+    width: 75%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.patient-view {
+    width: 70%;
+}
+
+.patient-view-administrative-container {
+    width: 100%;
+    flex-direction: column;
+    display: flex;
+}
+
+.attrib-title {
+    font-weight: bold;
+}
+
+.patient-view-table-style {
+    border: none !important;
+}
+
+.border-less-tr {
+    border: none !important;
+    text-align: left;
+}
+
+.border-less-td {
+    border: none !important;
+}
+/* Spacing between rows */
+/*.patient-view-administrative-col + .patient-view-administrative-col {
+    margin-right: 130px;
+}*/
+
+.patient-view-administrative-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.patient-view-attrib-title {
+    font-weight: bold;
+}
+
+.patient-view > h1 {
+    margin-bottom: 30px;
+    margin: auto;
+}
+
+h2 {
+    display: flex;
+    flex-direction: left;
+}

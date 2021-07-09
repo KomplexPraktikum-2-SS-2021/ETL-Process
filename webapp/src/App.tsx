@@ -5,7 +5,8 @@ import { Login } from './views/Login';
 import { AppNavbar } from './components/AppNavbar';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { PatientOverview } from './views/PatientOverview';
- 
+import { PatientView } from './components/PatientView';
+
 
 function App() {
   const {state} = React.useContext(ThemeContext)
@@ -19,6 +20,7 @@ function App() {
             <Switch>
               <Route path='/' exact component={Login} />
               <Route path='/patient_overview' component={PatientOverview} />
+              <Route path='/patient/:id' component={PatientView} />
             </Switch>
           </div>
         </div>
