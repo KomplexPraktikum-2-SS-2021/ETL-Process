@@ -75,6 +75,8 @@ class EtlProcess:
             subject_ref = FHIRReference(encounter['subject'])
             
             fhir_element = self.object_creator.create_condition(row, subject_ref, encounter_ref_id)
+            if fhir_element == None:
+                continue
             self.server.post_json(path=ResourceName.CONDITION.value, resource_json=fhir_element.as_json())
 
     def _load_procedures(self):

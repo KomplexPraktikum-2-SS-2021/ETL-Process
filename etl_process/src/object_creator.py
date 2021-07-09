@@ -227,7 +227,7 @@ class ObjectCreator:
         return encounter
 
 
-    def create_condition(self, diagnose_row: pd.Series, subject_ref: FHIRReference, encounter_ref_id: str) -> Condition:
+    def create_condition(self, diagnose_row: pd.Series, subject_ref: FHIRReference, encounter_ref_id: str) -> Optional[Condition]:
 
         system = str(diagnose_row.system)
         version = str(diagnose_row.version)
@@ -244,6 +244,7 @@ class ObjectCreator:
         cond_code = ObjectCreator._convert_string(str(diagnose_row.code))
         if cond_code == 'nan':      # empty values are replaced with 'nan' in csv loading process
             coding.display = ''
+            return None
         else:
             coding.display = ObjectCreator._condition_description_dict[cond_code]
 
