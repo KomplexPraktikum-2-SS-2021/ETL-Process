@@ -1,6 +1,5 @@
-import { useState } from 'react'
-import { useParams } from "react-router-dom";
 import './index.css';
+import { Patient, HumanName } from 'fhir/r4';
 
 
 /**
@@ -13,8 +12,6 @@ import './index.css';
     const svg_height = "35";
     const male_color = "blue";
     const female_color = "#c00";
-
-    console.log("Gender: ", gender);
 
     if (gender === "male") {
         return (
@@ -63,8 +60,6 @@ const TableRow = (props: RowProps) => {
         isGenderAttrib = true
     }
 
-    console.log("IsAttrib: ", isGenderAttrib);
-
     if (isGenderAttrib) {
         return (
             <tr className={`border-less-tr`}>
@@ -112,49 +107,82 @@ export const PatientView = () => {
     )
 }*/
 
-export const PatientView = () => {
-    const { id }: Params = useParams();
+export const AdminView = (props: AdminViewProps) => {
+    const { patient } = props;
 
-    let patient_object = {name: "Olaf", forename:"Olaf1", gender: "female", birthdate: "01.02.1997", address: "01069 Dresden Nürnberger Straße 14"}
+    const getAddress = () => {
+        if (patient.address) {
+            const address_object = patient.address[0]
+            return address_object.postalCode + ' ' + address_object.city + ', ' + address_object.line
+        } else {
+            return ""
+        }
+    }
+
+    const getFamilyName = () => {
+        if (patient.name) {
+            const patient_name = patient.name[0]
+            return patient_name.family
+        } else {
+            return ""
+        }
+    }
+
+    const getName = () => {
+        if (patient.name) {
+            const patient_name = patient.name[0].given
+            if (patient_name) {
+                const patient_name_given = patient_name[0]
+                return patient_name_given
+            }
+        } else {
+            return ""
+        }
+    }
+
+    const getGender = () => {
+        if (patient.gender) {
+            return patient.gender
+        }
+    }
+
+    const getBirthdate = () => {
+        if (patient.birthDate) {
+            return patient.birthDate
+        }
+    }
 
     return (
-        <div className={`patient-view-container`}>
-            <div className={`patient-view`}>
-                <h1>Patients View</h1>
-                <div className={`patient-view-administrative-container`}>
-                    <div>
-                        <h2>Allgemeine Informationen</h2>
-                    </div>
-                    <table className={`patient-view-table-style`}>
-                        <TableRow attrib_name1={"Name"} attrib_name2={"Vorname"} attrib_value1={patient_object.name} attrib_value2={patient_object.forename} />
-                        <TableRow attrib_name1={"Geburtsdatum"} attrib_name2={"Geschlecht"} attrib_value1={patient_object.birthdate} attrib_value2={patient_object.gender} />
-                        <TableRow attrib_name1={"Wohnadresse"} attrib_value1={patient_object.address} />
-                    </table>
-                </div>
+        <div className={`patient-view-administrative-container`}>
+            <div>
+                <h2>Allgemeine Informationen</h2>
             </div>
+            <table className={`patient-view-table-style`}>
+                <TableRow attrib_name1={"Name"} attrib_name2={"Vorname"} attrib_value1={getFamilyName()} attrib_value2={getName()} />
+                <TableRow attrib_name1={"Geburtsdatum"} attrib_name2={"Geschlecht"} attrib_value1={getBirthdate()} attrib_value2={getGender()} />
+                <TableRow attrib_name1={"Wohnadresse"} attrib_value1={getAddress()} />
+            </table>
         </div>
+    
     )
 }
-
-const DetailsView = () => {
-
+/*
+interface AdminViewProps {
+    name: string,
+    forename: string,
+    birthdate: string,
+    gender: string,
+    address: Address
 }
+*/
 
-const ProgressView = () => {
-
-}
-
-interface Params {
-    [id: string]: any
-}
-
-interface ColProps {
-    elements: string[]
+interface AdminViewProps {
+    patient: Patient
 }
 
 interface RowProps {
     attrib_name1: string,
-    attrib_value1: string,
+    attrib_value1?: string,
     attrib_name2?: string,
     attrib_value2?: string,
 }

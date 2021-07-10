@@ -5,7 +5,7 @@ import { Login } from './views/Login';
 import { AppNavbar } from './components/AppNavbar';
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import { PatientOverview } from './views/PatientOverview';
-import { PatientView } from './components/PatientView';
+import { PatientView } from './views/PatientView';
 
 
 function App() {
