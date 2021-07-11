@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom";
 import { Bundle, Patient } from 'fhir/r4';
 import { oauth2 as SMART } from "fhirclient";
+import {Tab, Tabs} from '@blueprintjs/core'
 
 async function getPatientData(id: string): Promise<[Patient]> {
     const client = await SMART.ready();
@@ -29,6 +30,7 @@ async function getPatientData(id: string): Promise<[Patient]> {
     return [patient]
 }
 
+
 export const PatientView = () => {
     const { id }: Params = useParams();
     const [state, setState] = useState({
@@ -51,6 +53,10 @@ export const PatientView = () => {
                     <AdminView 
                         patient={state.patient}
                     />
+                    <Tabs id="patient_view_selection" large={true} renderActiveTabPanelOnly={true} defaultSelectedTabId={"patient_view_details"} className={`patient-view-selection`}>
+                        <Tab id="patient_view_details" title="Detailinformationen" panel={<div>Detailinformationen</div>}/>
+                        <Tab id="patient_view_progress" title="Verlaufsinformationen" panel={<div>Verlaufsinformationen</div>}/>
+                    </Tabs>
                 </div>
             </div>
         )
@@ -59,8 +65,4 @@ export const PatientView = () => {
 
 interface Params {
     [id: string]: any
-}
-
-interface MyObject {
-    data: Patient[]
 }
