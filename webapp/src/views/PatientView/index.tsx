@@ -9,7 +9,6 @@ async function getPatientData(id: string): Promise<[Patient]> {
     const client = await SMART.ready();
     //const bundle: Bundle = await client.request('Patient/?_id=' + id + '&_count=1');
     const bundle: Bundle = await client.request('Patient/?_revinclude=Condition:subject');
-    console.log("Bundle: ", bundle);
     const bundle_resources = (bundle.entry?.map(entry => entry.resource)) ?? [];
 
     // Filter results
@@ -39,7 +38,7 @@ export const PatientView = () => {
 
     // Get the patient from the server
     useEffect(() => {
-        getPatientData(id).then(([a_patient]) => setState({...state, patient: a_patient, loading: false}))
+        getPatientData(id).then(([patient_admin_data]) => setState({...state, patient: patient_admin_data, loading: false}))
     }, []);
 
     if (state.loading === true) {
