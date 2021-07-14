@@ -30,6 +30,7 @@ services:
     tty: true        # docker run -t
     volumes:
       - ./webapp:/app
+      - /app/node_modules
     ports:
       - 3000:3000
     environment:
