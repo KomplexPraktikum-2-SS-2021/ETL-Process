@@ -17,6 +17,9 @@ services:
       - ./etl_process:/app
     depends_on:
       - fhir-server
+    environment:
+      - HAPI_HOST=fhir-server
+      - HAPI_POST=8080
 
   webapp:
     build:
