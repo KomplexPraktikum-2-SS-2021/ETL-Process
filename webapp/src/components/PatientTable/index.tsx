@@ -1,6 +1,6 @@
 import { Classes } from '@blueprintjs/core';
 import { Condition, Encounter, Patient } from 'fhir/r4';
-import './index.css';
+import './index.scss';
 import { getResourcePath, arrayMax } from 'utils/index';
 
 interface PatientTableProps {
@@ -19,66 +19,70 @@ export const PatientTable = (props: PatientTableProps) => {
     return (
         <div className="PatientTable-container">
             <table className="PatientTable-table">
-                <tr>
-                    <th>Patient ID</th>
-                    <th>Last Name</th>
-                    <th>First Name</th>
-                    <th>Gender</th>
-                    <th>Birthdate (+Age)</th>
-                    <th>Last diagnose</th>
-                    <th>Status</th>
-                </tr>
-                {
-                    props.patients.length > 0 ?
-                    props.patients.map((patient, idx) => {
-                        const activeEncounters = props.encounterMap.get(getResourcePath(patient)??'')
-                            ?.filter(enc => enc.status === 'in-progress') ?? [];
+                <thead>
+                    <tr>
+                        <th>Patient ID</th>
+                        <th>Last Name</th>
+                        <th>First Name</th>
+                        <th>Gender</th>
+                        <th>Birthdate (+Age)</th>
+                        <th>Last diagnose</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        props.patients.length > 0 ?
+                        props.patients.map((patient, idx) => {
+                            const activeEncounters = props.encounterMap.get(getResourcePath(patient)??'')
+                                ?.filter(enc => enc.status === 'in-progress') ?? [];
 
 
-                        let isActive = false;
-                        let mostRecentEncounter: Encounter|undefined;
-                        if(activeEncounters.length > 1) {
-                            console.warn(`Patient ${patient.id} has multiple active cases!`)
-                            mostRecentEncounter = arrayMax(activeEncounters, sortCriterion('start'));
-                            isActive = true;
-                        } else if(activeEncounters.length == 1) {
-                            mostRecentEncounter = activeEncounters[0];
-                            isActive = true;
-                        } else if(activeEncounters.length == 0) {
-                            mostRecentEncounter = arrayMax(props.encounterMap.get(getResourcePath(patient)??'')??[], sortCriterion('end'));
-                            isActive = false;
-                        }
+                            let isActive = false;
+                            let mostRecentEncounter: Encounter|undefined;
+                            if(activeEncounters.length > 1) {
+                                console.warn(`Patient ${patient.id} has multiple active cases!`)
+                                mostRecentEncounter = arrayMax(activeEncounters, sortCriterion('start'));
+                                isActive = true;
+                            } else if(activeEncounters.length == 1) {
+                                mostRecentEncounter = activeEncounters[0];
+                                isActive = true;
+                            } else if(activeEncounters.length == 0) {
+                                mostRecentEncounter = arrayMax(props.encounterMap.get(getResourcePath(patient)??'')??[], sortCriterion('end'));
+                                isActive = false;
+                            }
 
-                        const conditions = mostRecentEncounter ? props.conditionMap.get(getResourcePath(mostRecentEncounter)??'') : undefined;
-                        let mostRecentCondition = conditions?.find(cond => cond.note?.[0].text === 'discharge') ??
-                            conditions?.find(cond => cond.note?.[0].text === 'admission');
+                            const conditions = mostRecentEncounter ? props.conditionMap.get(getResourcePath(mostRecentEncounter)??'') : undefined;
+                            let mostRecentCondition = conditions?.find(cond => cond.note?.[0].text === 'discharge') ??
+                                conditions?.find(cond => cond.note?.[0].text === 'admission');
 
-                        console.log(mostRecentCondition)
-                        
+                            console.log(mostRecentCondition)
+                            
 
-                        return(
-                            <tr key={idx}>
-                                <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
-                                <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
-                                <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
-                                <td>{patient.gender ?? EMPTY_CELL_STR}</td>
-                                <td>{patient.birthDate ?? EMPTY_CELL_STR}</td>
-                                <td>{mostRecentCondition?.code?.coding?.[0].display ?? EMPTY_CELL_STR}</td>
-                                <td>{new String(isActive)}</td>
+                            return(
+                                <tr key={idx}>
+                                    <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
+                                    <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
+                                    <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
+                                    <td>{patient.gender ?? EMPTY_CELL_STR}</td>
+                                    <td>{patient.birthDate ?? EMPTY_CELL_STR}</td>
+                                    <td>{mostRecentCondition?.code?.coding?.[0].display ?? EMPTY_CELL_STR}</td>
+                                    <td>{new String(isActive)}</td>
+                                </tr>
+                            )}) :
+                        (
+                            <tr>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> <div className={Classes.SKELETON}>---</div> </td>
                             </tr>
-                        )}) :
-                    (
-                        <tr>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                            <td> <div className={Classes.SKELETON}>---</div> </td>
-                        </tr>
-                    )
-                }
+                        )
+                    }
+                </tbody>
             </table>
         </div>
     )
