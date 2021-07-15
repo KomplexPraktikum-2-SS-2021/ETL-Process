@@ -1,7 +1,7 @@
 import { Classes } from '@blueprintjs/core';
 import { Condition, Encounter, Patient } from 'fhir/r4';
 import './index.scss';
-import { getResourcePath, arrayMax } from 'utils/index';
+import { getResourcePath, arrayMax, calculateAge } from 'utils/index';
 
 interface PatientTableProps {
     patients: Patient[]
@@ -14,6 +14,14 @@ const EMPTY_CELL_STR = '---';
 //TODO: Check if expression has right sign
 const sortCriterion = (crit: 'start'|'end') => (e1: Encounter, e2: Encounter) => Date.parse(e1.period?.[crit]??'')-Date.parse(e2.period?.[crit]??''); 
 
+const toBirtdateAgeStr = (birthday?: string) => {
+    if(birthday){
+
+        const date = new Date(birthday)
+        return `${date.toLocaleDateString('de')} (${calculateAge(date)})`
+    } else 
+        return undefined
+}
 
 export const PatientTable = (props: PatientTableProps) => {
     return (
@@ -21,12 +29,12 @@ export const PatientTable = (props: PatientTableProps) => {
             <table className="PatientTable-table">
                 <thead>
                     <tr>
-                        <th>Patient ID</th>
-                        <th>Last Name</th>
-                        <th>First Name</th>
-                        <th>Gender</th>
-                        <th>Birthdate (+Age)</th>
-                        <th>Last diagnose</th>
+                        <th>Patienten ID</th>
+                        <th>Nachname</th>
+                        <th>Vorame</th>
+                        <th>Geschlect</th>
+                        <th>Geburtstag (+Alter)</th>
+                        <th>Letzte Diagnose</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -65,7 +73,7 @@ export const PatientTable = (props: PatientTableProps) => {
                                     <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.gender ?? EMPTY_CELL_STR}</td>
-                                    <td>{patient.birthDate ?? EMPTY_CELL_STR}</td>
+                                    <td>{toBirtdateAgeStr(patient.birthDate) ?? EMPTY_CELL_STR}</td>
                                     <td>{mostRecentCondition?.code?.coding?.[0].display ?? EMPTY_CELL_STR}</td>
                                     <td>{new String(isActive)}</td>
                                 </tr>

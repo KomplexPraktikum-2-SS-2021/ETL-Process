@@ -12,9 +12,11 @@ import { binaryChainReferenceMaps, constructReferenceMap, DefaultMap } from 'uti
  * This method fetches the fhir data needed to display the patient overview.
  * It returns an tuple of (1) The list of all patients (2) a map relating a patient (by id) to all his diagnoses
  */
-async function getData(): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
+async function getData(onlyActive: boolean): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
+
+    const onlyActiveQuery = onlyActive ? '_has:Encounter:subject:status=in-progress' : ''
     const client = await SMART.ready();
-    const bundle: Bundle = await client.request('Patient/?_revinclude=Encounter:subject&_revinclude:iterate=Condition:encounter');
+    const bundle: Bundle = await client.request(`Patient/?${onlyActiveQuery}&_revinclude=Encounter:subject&_revinclude:iterate=Condition:encounter`);
     console.debug(bundle);
     const bundle_resources = (bundle.entry?.map(entry => entry.resource)) ?? []; // defaulting to empty list if no entry is available
 
@@ -44,7 +46,7 @@ export const PatientOverview = () => {
 
     useEffect(() => {
         if(state.loading) {
-            getData().then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: false}))
+            getData(state.onlyActive).then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: false}))
         } 
     }, [state.loading])
 
@@ -63,14 +65,13 @@ export const PatientOverview = () => {
                 <Switch 
                     checked={state.onlyActive}
                     onChange={event => {setState({...state, onlyActive: !state.onlyActive, loading: true})}}
-                    labelElement={(
-                    <div>Only show <Tooltip2
+                    labelElement={(<>Nur <Tooltip
                         className={Classes.TOOLTIP_INDICATOR}
                         position={Position.RIGHT}
-                        content={<span>BRRAAAIINS</span>}>
-                        active patients
-                        </Tooltip2>
-                    </div>)} />
+                        content={<span>Aktive Patienten sind jene Patienten, <br/> deren letzter Behandlungsfall nicht abgeschlossen ist</span>}>
+                        aktive Patienten
+                        </Tooltip></>)}
+                />
                 {/* <Button
                     intent={Intent.PRIMARY}
                     onClick={async () => {

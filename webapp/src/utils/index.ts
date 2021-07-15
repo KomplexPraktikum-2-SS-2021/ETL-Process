@@ -73,4 +73,9 @@ export function arrayMax<T>(arr: T[], comp: (a:T, b:T) => number): T|undefined{
 }
 
 
-arrayMin([], (a,b)=>a-b)
+
+export function calculateAge(birthday: Date): number { // birthday is a date
+    const ageDifMs = Date.now() - birthday.getTime();
+    const ageDate = new Date(ageDifMs); // miliseconds from epoch
+    return Math.abs(ageDate.getUTCFullYear() - 1970);
+  }
