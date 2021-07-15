@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { FormGroup, InputGroup, ControlGroup, Switch, Tooltip, Classes, Position } from '@blueprintjs/core';
+import { FormGroup, InputGroup, ControlGroup, Switch, Tooltip, Classes, Position, Button, Icon, Spinner } from '@blueprintjs/core';
 import './index.css';
 import { oauth2 as SMART } from "fhirclient";
 import { PatientTable } from 'components/PatientTable'
@@ -12,7 +12,7 @@ import { binaryChainReferenceMaps, constructReferenceMap, DefaultMap } from 'uti
  * This method fetches the fhir data needed to display the patient overview.
  * It returns an tuple of (1) The list of all patients (2) a map relating a patient (by id) to all his diagnoses
  */
-async function getData(onlyActive: boolean): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
+async function getData(onlyActive: boolean, patientIdSearch: string, lastName: string): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
 
     const onlyActiveQuery = onlyActive ? '_has:Encounter:subject:status=in-progress' : ''
     const client = await SMART.ready();
@@ -21,7 +21,10 @@ async function getData(onlyActive: boolean): Promise<[Patient[], Map<string, Con
     const bundle_resources = (bundle.entry?.map(entry => entry.resource)) ?? []; // defaulting to empty list if no entry is available
 
     // Filter results
-    const patients = bundle_resources.filter(res => res?.resourceType == 'Patient') as Patient[];
+    let patients = bundle_resources.filter(res => res?.resourceType == 'Patient') as Patient[];
+    patients = patients.filter(pat => pat.identifier?.[0].value?.startsWith(patientIdSearch));
+    patients = patients.filter(pat => pat.name?.[0].family?.startsWith(lastName));
+
     const conditions = bundle_resources.filter(res => res?.resourceType == 'Condition') as Condition[];
     const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
     
@@ -35,36 +38,61 @@ async function getData(onlyActive: boolean): Promise<[Patient[], Map<string, Con
     return [patients, conditionMap, encounterMap];
 }
 
+enum LOAD_STATE {
+    firstLoad,
+    loading,
+    finished
+}
+
 export const PatientOverview = () => {
    const [state, setState] = useState({
-       onlyActive: true,
-       patients: [] as Patient[],
-       conditions: new Map<string, Condition[]>(),
-       encounterMap: new Map<string, Encounter[]>(),
-       loading: true
+        patientIdSearch: '',
+        lastName: '',
+        firstName: '',
+        onlyActive: true,
+
+        patients: [] as Patient[],
+        conditions: new Map<string, Condition[]>(),
+        encounterMap: new Map<string, Encounter[]>(),
+        loading: LOAD_STATE.firstLoad
     })
 
     useEffect(() => {
-        if(state.loading) {
-            getData(state.onlyActive).then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: false}))
+        if(state.loading !== LOAD_STATE.finished) {
+            getData(state.onlyActive, state.patientIdSearch, state.lastName)
+            .then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: LOAD_STATE.finished}))
         } 
     }, [state.loading])
+
+    useEffect(() => {
+        if(state.loading !== LOAD_STATE.firstLoad) {
+            const delayDebounceFn = setTimeout(() => {
+            //   console.log(state.patientIdSearch)
+              setState({...state, loading: LOAD_STATE.loading})
+              // Send Axios request here
+            }, 400)
+        
+            return () => clearTimeout(delayDebounceFn)
+        }}, [state.patientIdSearch, state.lastName])
 
     return (
         <div className="PatientOverview-container">
             {/* {state.loading ? <Spinner/> : null} */}
+            {/* <PatientSearchForm searchParameter={state.searchParameter} onSearchReload={x => console.log(x)}/> */}
             <FormGroup
                 // helperText="Helper text with details..."
                 labelFor="text-input"
                 // labelInfo="(required)"
             >
                 <ControlGroup fill={true} vertical={false}>
-                    <InputGroup placeholder="Find filters..." />
-                    {/* <Button icon="filter">Filter</Button> */}
+                    <InputGroup placeholder="Patienten ID..." onChange={event => setState({...state, patientIdSearch: event.target.value})}/>
+                    <InputGroup placeholder="Nachname..." onChange={event => setState({...state, lastName: event.target.value})}/>
+                    <InputGroup placeholder="Vorname..." />
+                    {/* <Button icon="search"></Button> */}
                 </ControlGroup>
                 <Switch 
                     checked={state.onlyActive}
-                    onChange={event => {setState({...state, onlyActive: !state.onlyActive, loading: true})}}
+                    onChange={event => {setState({...state, onlyActive: !state.onlyActive, loading: LOAD_STATE.loading})}}
                     labelElement={(<>Nur <Tooltip
                         className={Classes.TOOLTIP_INDICATOR}
                         position={Position.RIGHT}
@@ -82,6 +110,14 @@ export const PatientOverview = () => {
                     Submit
             </Button> */}
             </FormGroup>
+            {
+                state.loading === LOAD_STATE.firstLoad ?
+                <>...</> :
+                state.patients.length > 0 ? 
+                <span>Es wurden {state.patients.length} Patienten gefunden <Icon icon="tick" intent="success"></Icon></span> :
+                <span>Es wurden keine Patienten gefunden <Icon icon="cross" intent="danger"></Icon></span>
+            }
+            {/* {state.loading ? <Spinner/> : <></> } */}
             <PatientTable patients={state.patients} conditionMap={state.conditions} encounterMap={state.encounterMap}/>
             
         </div>

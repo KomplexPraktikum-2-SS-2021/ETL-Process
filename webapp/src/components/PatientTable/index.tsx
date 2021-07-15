@@ -1,7 +1,7 @@
 import { Classes } from '@blueprintjs/core';
 import { Condition, Encounter, Patient } from 'fhir/r4';
 import './index.scss';
-import { getResourcePath, arrayMax, calculateAge } from 'utils/index';
+import { getResourcePath, arrayMax, calculateAge, levenshteinDistance } from 'utils/index';
 
 interface PatientTableProps {
     patients: Patient[]
@@ -64,8 +64,6 @@ export const PatientTable = (props: PatientTableProps) => {
                             let mostRecentCondition = conditions?.find(cond => cond.note?.[0].text === 'discharge') ??
                                 conditions?.find(cond => cond.note?.[0].text === 'admission');
 
-                            console.log(mostRecentCondition)
-                            
 
                             return(
                                 <tr key={idx}>
@@ -80,13 +78,14 @@ export const PatientTable = (props: PatientTableProps) => {
                             )}) :
                         (
                             <tr>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
-                                <td> <div className={Classes.SKELETON}>---</div> </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                <td> {EMPTY_CELL_STR} </td>
+                                {/* <td> <div className={Classes.SKELETON}>---</div> </td> */}
                             </tr>
                         )
                     }
