@@ -11,7 +11,7 @@ async function FHIRStuff(url: string) {
         await SMART.authorize({
             clientId: "my-client-id",
             scope: "launch launch/patient patient/read offline_access",
-            redirectUri: "./patient_overview",
+            redirectUri: "/patient_overview",
             iss: url,
       
             // WARNING: completeInTarget=true is needed to make this work

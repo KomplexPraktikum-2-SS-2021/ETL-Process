@@ -70,7 +70,7 @@ export const PatientTable = (props: PatientTableProps) => {
 
 
                             return(
-                                <tr key={idx} onClick={()=>history.push(`/patient/${patient.identifier?.[0].value}`, patient.identifier?.[0].value)}>
+                                <tr key={idx} onClick={()=>history.push(`/patient/${patient.id}`, patient.id)}>
                                     <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
