@@ -2,6 +2,7 @@ import { Classes } from '@blueprintjs/core';
 import { Condition, Encounter, Patient } from 'fhir/r4';
 import './index.scss';
 import { getResourcePath, arrayMax, calculateAge, levenshteinDistance } from 'utils/index';
+import { useHistory } from 'react-router-dom';
 
 interface PatientTableProps {
     patients: Patient[]
@@ -24,6 +25,9 @@ const toBirtdateAgeStr = (birthday?: string) => {
 }
 
 export const PatientTable = (props: PatientTableProps) => {
+
+    const history = useHistory();
+
     return (
         <div className="PatientTable-container">
             <table className="PatientTable-table">
@@ -66,7 +70,7 @@ export const PatientTable = (props: PatientTableProps) => {
 
 
                             return(
-                                <tr key={idx}>
+                                <tr key={idx} onClick={()=>history.push(`/patient/${patient.identifier?.[0].value}`, patient.identifier?.[0].value)}>
                                     <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
