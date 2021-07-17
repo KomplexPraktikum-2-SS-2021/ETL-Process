@@ -50,22 +50,24 @@ $table-background-dark: #394b59;
     tr {
         transition: background-color .3s ease-in-out !important;
         
-        &:first-child {
-            padding-left: 3px;
-        }
-
+        
         .bp3-dark &:hover {
             background-color: lighten($color: $table-background-dark, $amount: 20);
-
+            
         }
-
+        
         &:hover {
             background-color: darken($color: $table-background-light, $amount: 20);
             cursor: pointer;
             box-shadow: 0px 0px 5px rgba(91, 101, 145, 0.5);
             transform: scale(1);
         }
-
+        
+        &:first-child {
+            // padding-left: 3px;
+            transform: none;
+            box-shadow: none;
+        }
     }
     
     
