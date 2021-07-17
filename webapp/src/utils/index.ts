@@ -102,3 +102,15 @@ export function levenshteinDistance(str1 = '', str2 = ''): number {
     }
     return track[str2.length][str1.length];
 };
+
+type OptTuple<T extends unknown[]> = {[K in keyof T]: T[K]|undefined};
+export function optionalCompute<T extends unknown[], S>(fun: (...inp: [...T]) => S, ...inp: [...OptTuple<T>]): S|undefined {
+    if(inp.some(x => x===undefined))
+        return undefined
+    else {
+        return fun(...(inp as [...T]))
+    }
+}
+
+
+
