@@ -24,3 +24,27 @@
     flex-direction: row;
     justify-content: space-between;
 }
+
+
+/*Poly Somno Data View*/
+
+.poly-data-table {
+    border: none !important;
+    margin-top: 20px;
+}
+
+.poly-data-table-tr {
+    border: none !important;
+}
+
+.poly-data-table-td {
+    border: none !important;
+}
+
+.poly-data-value {
+    text-align: right;
+}
+
+.poly-data-other {
+    text-align: left;
+}

@@ -1,6 +1,6 @@
 import { ItemPredicate, ItemRenderer, IItemRendererProps} from '@blueprintjs/select'
 import { MenuItem } from '@blueprintjs/core'
-import { Encounter, Condition } from "fhir/r4";
+import { Encounter, Condition, Procedure, Observation } from "fhir/r4";
 
 
 /**
@@ -130,6 +130,38 @@ export function getType(cond: Condition) {
 }
 
 /**
+ *  Getter Functions for Creating Diagnosis Objects
+ */
+
+export function getFhirCaseIdProc(proc: Procedure) {
+    if (proc.encounter) {
+        if (proc.encounter.reference) {
+            return proc.encounter.reference.split("/")[1];
+        } else {
+            return "";
+        }
+    } else {
+        return "";
+    }
+}
+
+export function getProcId(proc: Procedure) {
+    if (proc.identifier) {
+        if (proc.identifier[0].value) {
+            const ident = proc.identifier[0].value;
+            return ident;
+        } else {
+            return "No Identifier value exists";
+        }
+    } else {
+        return "No Identifier exists";
+    }
+}
+
+
+
+
+/**
  * Functions for Rendering the Selection
  */
 
@@ -169,6 +201,20 @@ export const renderCase: ItemRenderer<ICase> = (item: ICase, itemProps: IItemRen
     )
 };
 
+export const renderProc: ItemRenderer<IProc> = (item: IProc, itemProps: IItemRendererProps) => {
+    if (!itemProps.modifiers.matchesPredicate) {
+        return null;
+    }
+
+    return (
+        <MenuItem
+            key={item.proc_id}
+            onClick={itemProps.handleClick}
+            text={"(" + item.proc_id + ")"}
+        />
+    )
+};
+
 /**
  * Types
  */
@@ -185,6 +231,23 @@ export interface ICase {
     end: string
     case_id: string,
     fhir_id?: string
+}
+
+export interface IProc {
+    timestamp: string,  
+    proc_id: string,               // Proceudre-Id
+    fhir_case_id: string
+}
+
+export interface IObserv {
+    proc_id: string,               // Proceudre-Id
+    observations: IObservEntry[]
+}
+
+export interface IObservEntry {
+    code: string,   // Code of the observation
+    value: string,  // 
+    unit:string
 }
 
 export interface FilterProps {

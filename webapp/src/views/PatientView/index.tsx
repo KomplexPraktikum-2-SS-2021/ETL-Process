@@ -2,7 +2,7 @@ import {AdminView} from '../../components/AdminView'
 import './index.css';
 import { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom";
-import { Bundle, Condition, Encounter, Observation, Patient } from 'fhir/r4';
+import { Bundle, Condition, Encounter, Observation, Patient, Procedure } from 'fhir/r4';
 import { oauth2 as SMART } from "fhirclient";
 import {Callout, Tab, Tabs} from '@blueprintjs/core'
 import { DevelopmentTable } from 'components/DevelopmentTable';
@@ -15,13 +15,15 @@ async function getPatientData(id: string): Promise<PatientViewData> {
     const patient: Patient = await client.request(`Patient/${id}`);
     console.debug(patient)
 
-    const bundle: Bundle = await client.request(`http://localhost:8080/fhir/Encounter?subject=Patient/${id}&_revinclude=Condition:encounter&_revinclude=Observation:encounter`);
+    const bundle: Bundle = await client.request(`http://localhost:8080/fhir/Encounter?subject=Patient/${id}&_revinclude=Condition:encounter&_revinclude=Observation:encounter&_revinclude=Procedure:encounter`);
     const bundle_resources = (bundle.entry?.map(entry => entry.resource)) ?? []; // defaulting to empty list if no entry is available
     
     const conditions = bundle_resources.filter(res => res?.resourceType == 'Condition') as Condition[];
     const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
     const observations = bundle_resources.filter(res => res?.resourceType == 'Observation') as Observation[];
-
+    const procedures = bundle_resources.filter(res => res?.resourceType == 'Procedure') as Procedure[];
+    console.log("Observations: ", observations);
+    console.log("Procedures: ", procedures);
     const conditionMap = constructReferenceMap(conditions, 'encounter');
     const observationMap = constructReferenceMap(observations, 'encounter');
 
@@ -29,13 +31,15 @@ async function getPatientData(id: string): Promise<PatientViewData> {
         patient,
         encounters,
         conditionMap,
-        observationMap
+        observationMap,
+        procedures
     }
 }
 
 type PatientViewData = {
     patient: Patient
     encounters: Encounter[],
+    procedures: Procedure[];
     conditionMap: Map<string, Condition[]>,
     observationMap: Map<string, Observation[]>,
 };
@@ -77,6 +81,7 @@ export const PatientView = () => {
                                         encounters={state.data.encounters}
                                         conditionMap={state.data.conditionMap}
                                         observationMap={state.data.observationMap}
+                                        procedures={state.data.procedures}
                                     />}
                                 />
                                 <Tab id="patient_view_progress" title="Verlaufsinformationen" panel={<DevelopmentTable

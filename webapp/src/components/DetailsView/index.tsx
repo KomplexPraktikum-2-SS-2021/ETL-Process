@@ -1,15 +1,19 @@
 import './index.css';
 
 import {useState, useCallback, useEffect} from 'react';
-import { Condition, Encounter, Observation } from "fhir/r4";
+import { Condition, Encounter, Observation, Procedure } from "fhir/r4";
 
 import { Select } from '@blueprintjs/select';
 import { Button } from '@blueprintjs/core';
-import { ICase, IDiag,renderCase, getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds } from './utils';
-import { DiagnosisRow } from './elements';
+import { ICase, IDiag, IObserv, IObservEntry, IProc,
+        renderCase, renderProc,
+        getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds,
+        getFhirCaseIdProc, getProcId } from './utils';
+import { DiagnosisRow, PolySomnoView } from './elements';
 
 
 const CaseSelect = Select.ofType<ICase>();
+const ProcSelect = Select.ofType<IProc>();
 
 function transformIntoArray(fhir_res_array: Encounter[]):ICase[] {
 
@@ -33,7 +37,7 @@ function transformIntoArray(fhir_res_array: Encounter[]):ICase[] {
 function transformIntoDiagArray(fhir_res_array: Map<string, Condition[]>):IDiag[] {
     const diagnoses:  IDiag[] = [];
 
-    const createCaseAndAppend = (cond_list: Condition[]) => {
+    const createDiagAndAppend = (cond_list: Condition[]) => {
         let i = 0;
         while (i < cond_list.length) {
             const a_diag: IDiag = {type: getType(cond_list[i]), code: getDiagCode(cond_list[i]), 
@@ -42,9 +46,22 @@ function transformIntoDiagArray(fhir_res_array: Map<string, Condition[]>):IDiag[
             i += 1;
         }
     }
-    fhir_res_array.forEach(x => createCaseAndAppend(x));
+    fhir_res_array.forEach(x => createDiagAndAppend(x));
 
     return diagnoses;
+}
+
+function transformIntoProcObsArray(fhir_proc_array: Procedure[]):IProc[] {
+    const procedures: IProc[] = [];
+
+    const createProcAndAppend = (proc: Procedure) => {
+        const a_proc: IProc = {fhir_case_id: getFhirCaseIdProc(proc), proc_id: getProcId(proc), timestamp: ""};
+        procedures.push(a_proc);
+    }
+
+    fhir_proc_array.forEach(x => createProcAndAppend(x));
+
+    return procedures;
 }
 
 /**  <select>{data.map((x, y) => <option key={y}>{x}</option>)}</select>  */
@@ -83,22 +100,25 @@ const Label = ({text}: LabelProps) => {
 export const DetailsView = ({
     encounters,
     conditionMap,
-    observationMap
+    observationMap,
+    procedures
 }: DetailProps) => {
 
     const cases = transformIntoArray(encounters);
     const diagnoses = transformIntoDiagArray(conditionMap);
+    const m_procedures = transformIntoProcObsArray(procedures);
 
     const [selected_case, setCase] = useState(cases[0]);
     const [diag, setDiagState] = useState({
         admission: {name: "", code: "", type: "admission", fhir_case_id: ""} as IDiag,
         discharge: {name: "", code: "", type: "discharge", fhir_case_id: ""} as IDiag,
     });
+    const [proc_list, setProcList] = useState([] as IProc[])
+    const [selected_proc, setProc] = useState(proc_list[0]);
     const [selected_poly_date, setPolyDate] = useState("");
 
     useEffect(() => {
         /*Update view by searching the respective */
-        setPolyDate("");
         const adm_diag: IDiag[] = diagnoses.filter(diag => diag.fhir_case_id === selected_case.fhir_id && diag.type === "admission");
         const dis_diag: IDiag[] = diagnoses.filter(diag => diag.fhir_case_id === selected_case.fhir_id && diag.type === "discharge");
         if (dis_diag.length === 0) {
@@ -107,12 +127,24 @@ export const DetailsView = ({
         } else {
             setDiagState({admission: adm_diag[0], discharge: dis_diag[0]});
         }
+        /* Updating  */
+        const filtered_proc = m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id);
+        setProcList(filtered_proc);
+        setProc(filtered_proc[0]);
+        setPolyDate("");
         console.log("Selected Case has changed");
     }, [selected_case])
 
-    const handleItemSelect = useCallback(
+    const handleCaseSelect = useCallback(
         (a_case: ICase) => {
             setCase(a_case);
+        },
+        [],
+    )
+
+    const handleProcSelect = useCallback(
+        (a_proc: IProc) => {
+            setProc(a_proc);
         },
         [],
     )
@@ -126,7 +158,7 @@ export const DetailsView = ({
                     <CaseSelect
                         items={cases}
                         itemRenderer={renderCase}   /** renderCase: determines, how the case entry is displayed in the Selection List */
-                        onItemSelect={handleItemSelect}
+                        onItemSelect={handleCaseSelect}
                     >
                         <Button 
                             rightIcon="caret-down"
@@ -141,6 +173,21 @@ export const DetailsView = ({
                     diag_name_discharge={diag.discharge.name}
                     diag_code_discharge={diag.discharge.code}
                 />
+                <h3>Polysomnographie Befunde</h3>
+                <div className={`details-view__label-selection-element`}>
+                    <Label text="Befund"/>
+                    <ProcSelect
+                        items={proc_list}
+                        itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
+                        onItemSelect={handleProcSelect}
+                    >
+                        <Button 
+                            rightIcon="caret-down"
+                            text={selected_proc ? "( " + selected_proc.proc_id + " )" : "No Selection"}
+                        />
+                    </ProcSelect>
+                </div>
+                <PolySomnoView />
             </div>
         </div>
     )
@@ -156,6 +203,7 @@ interface SelectedProps {
 
 interface DetailProps {
     encounters: Encounter[],
+    procedures: Procedure[],
     conditionMap: Map<string, Condition[]>,
     observationMap: Map<string, Observation[]>,
 }
