@@ -1,0 +1,26 @@
+.details-view-container > h2 {
+    margin-top: 30px;
+}
+
+.details-view-info-container {
+    padding: 0 10px 0 10px;
+}
+
+.details-view-info-container > h3 {
+    text-align: left;
+}
+
+.details-view__label-selection-element {
+    display: flex;
+}
+
+.details-view-label {
+    margin-right: 30px;
+}
+
+.details-view__diag-row {
+    margin-left: 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}

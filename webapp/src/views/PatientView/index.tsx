@@ -7,6 +7,7 @@ import { oauth2 as SMART } from "fhirclient";
 import {Callout, Tab, Tabs} from '@blueprintjs/core'
 import { DevelopmentTable } from 'components/DevelopmentTable';
 import { constructReferenceMap } from 'utils';
+import { DetailsView } from '../../components/DetailsView';
 
 async function getPatientData(id: string): Promise<PatientViewData> {
     const client = await SMART.ready();
@@ -72,7 +73,12 @@ export const PatientView = () => {
                                 patient={state.data.patient}
                             />
                             <Tabs id="patient_view_selection" large={true} renderActiveTabPanelOnly={true} defaultSelectedTabId={"patient_view_details"} className={`patient-view-selection`}>
-                                <Tab id="patient_view_details" title="Detailinformationen" panel={<div>Detailinformationen</div>}/>
+                                <Tab id="patient_view_details" title="Detailinformationen" panel={<DetailsView 
+                                        encounters={state.data.encounters}
+                                        conditionMap={state.data.conditionMap}
+                                        observationMap={state.data.observationMap}
+                                    />}
+                                />
                                 <Tab id="patient_view_progress" title="Verlaufsinformationen" panel={<DevelopmentTable
                                         encounters={state.data.encounters}
                                         conditionMap={state.data.conditionMap}

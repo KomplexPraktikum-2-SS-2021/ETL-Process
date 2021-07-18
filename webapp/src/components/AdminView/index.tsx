@@ -107,8 +107,7 @@ export const PatientView = () => {
     )
 }*/
 
-export const AdminView = (props: AdminViewProps) => {
-    const { patient } = props;
+export const AdminView = ({patient}: AdminViewProps) => {
 
     const getAddress = () => {
         if (patient.address) {
