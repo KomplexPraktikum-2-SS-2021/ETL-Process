@@ -14,6 +14,10 @@ function getDateTime(fhir_datetime: string) {
     return split_1[0] + " " + split_1[1].split(".", 2)[0]
 }
 
+export function getMiliseconds(fhir_datetime: string) {
+    return new Date(fhir_datetime.split(".", 2)[0]).getTime();
+}
+
 
 /**
  *  Getter Functions for Creating Case Objects

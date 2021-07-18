@@ -5,7 +5,7 @@ import { Condition, Encounter, Observation } from "fhir/r4";
 
 import { Select } from '@blueprintjs/select';
 import { Button } from '@blueprintjs/core';
-import { ICase, IDiag,renderCase, getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId } from './utils';
+import { ICase, IDiag,renderCase, getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds } from './utils';
 import { DiagnosisRow } from './elements';
 
 
@@ -21,6 +21,11 @@ function transformIntoArray(fhir_res_array: Encounter[]):ICase[] {
         cases.push(a_case);
     }
     fhir_res_array.forEach(x => createCaseAndAppend(x));
+
+    // Sort the cases descending (most recently case at first)
+    cases.sort((a, b) => {
+        return getMiliseconds(b.start) - getMiliseconds(a.start);
+    })
 
     return cases
 }
