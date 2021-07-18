@@ -20,7 +20,7 @@ async function getPatientData(id: string): Promise<PatientViewData> {
     
     const conditions = bundle_resources.filter(res => res?.resourceType == 'Condition') as Condition[];
     const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
-    const observations = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Observation[];
+    const observations = bundle_resources.filter(res => res?.resourceType == 'Observation') as Observation[];
 
     const conditionMap = constructReferenceMap(conditions, 'encounter');
     const observationMap = constructReferenceMap(observations, 'encounter');

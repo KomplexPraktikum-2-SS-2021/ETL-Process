@@ -3,6 +3,7 @@ from logging import warn
 from typing import *
 from fhirclient.models.coding import Coding
 from fhirclient.models.quantity import Quantity
+from fhirclient.models.resource import Resource
 from resurce_name import ResourceName
 if TYPE_CHECKING:
     pass
@@ -263,7 +264,7 @@ class ObjectCreator:
         return condition
 
 
-    def create_observation(self, observation_row: pd.Series, subject_ref: FHIRReference, encounter_ref: FHIRReference) -> List[Observation]:
+    def create_observation(self, observation_row: pd.Series, subject_ref: FHIRReference, encounter_ref: FHIRReference, procedure_ref_id: str) -> List[Observation]:
         observation_list: List[Observation] = []
 
         for column_name, (obs_loinc_code, unit, display) in ObjectCreator._observation_loinc_mapping_dict.items():
@@ -294,6 +295,7 @@ class ObjectCreator:
             observation.encounter = encounter_ref
             observation.subject = subject_ref
             observation.valueQuantity = quantity
+            observation.partOf = [ObjectCreator._construct_reference(ResourceName.PROCEDURE, procedure_ref_id)]
 
             observation_list.append(observation)
     
@@ -322,6 +324,8 @@ class ObjectCreator:
             observation.encounter = encounter_ref
             observation.subject = subject_ref
             observation.valueQuantity = quantity
+            observation.partOf = [ObjectCreator._construct_reference(ResourceName.PROCEDURE, procedure_ref_id)]
+
 
             observation_list.append(observation)
 
@@ -353,5 +357,6 @@ class ObjectCreator:
         procedure.subject = subject_ref
         procedure.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         procedure.code = code
+        procedure.performedDateTime = ObjectCreator._parse_date_time(procedure_row['timestamp'])
 
         return procedure

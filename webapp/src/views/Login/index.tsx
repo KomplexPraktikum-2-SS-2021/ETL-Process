@@ -1,4 +1,4 @@
-import { FormGroup, InputGroup, Intent, Toaster } from '@blueprintjs/core';
+import { ControlGroup, FormGroup, InputGroup, Intent, Toaster } from '@blueprintjs/core';
 import { Button, Card, Elevation } from "@blueprintjs/core";
 import './index.css';
 import { oauth2 as SMART } from "fhirclient";
@@ -42,25 +42,18 @@ export const Login = () => {
 
     return (
         <div className="Login-card-container">
-            <Card interactive={true} elevation={Elevation.TWO}>
-                <FormGroup
-                    // helperText="Helper text with details..."
-                    label="Enter Data Source"
-                    labelFor="text-input"
-                    // labelInfo="(required)"
-                >
-                    <InputGroup id="text-input" placeholder="Server URL..." value={state.sourceURL} onChange={evnt => setState({sourceURL: evnt.target.value})}/>
-                    <Button
-                        intent={Intent.PRIMARY}
-                        onClick={() => {
-                            FHIRStuff(state.sourceURL);
-                           
-                        }}>
+            <h1>Willkommen bei SomnoSearch!</h1>
+            <p>Bitte geben sie die URL zur Ihrem KIS ein, um die Suche zu starten.</p>
+            <ControlGroup>
+                <InputGroup id="text-input" placeholder="Server URL..." value={state.sourceURL} onChange={evnt => setState({sourceURL: evnt.target.value})}/>
+                <Button
+                    intent={Intent.PRIMARY}
+                    icon="arrow-right"
+                    onClick={() => {
+                        FHIRStuff(state.sourceURL);
                         
-                        Submit
-                    </Button>
-                </FormGroup>
-            </Card>
+                    }}/>
+            </ControlGroup>
         </div>
     )
 }

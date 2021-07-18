@@ -17,11 +17,14 @@ function App() {
         <div className="App">
           <AppNavbar />
           <div className="App-view-container">
-            <Switch>
-              <Route path='/' exact component={Login} />
-              <Route path='/patient_overview' component={PatientOverview} />
-              <Route path='/patient/:id' component={PatientView} />
-            </Switch>
+            <div className="App-view-background"/>
+            <div className="App-view-content-container">
+              <Switch>
+                <Route path='/' exact component={Login} />
+                <Route path='/patient_overview' component={PatientOverview} />
+                <Route path='/patient/:id' component={PatientView} />
+              </Switch>
+            </div>
           </div>
         </div>
       </div>
