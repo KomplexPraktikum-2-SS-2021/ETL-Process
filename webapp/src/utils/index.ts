@@ -23,13 +23,19 @@ export class DefaultMap<K, V> extends Map<K, V> {
 
 
 
-export function constructReferenceMap<R extends string, T extends Resource&{[key in R]?: Reference}>(resources: T[], refProp: R): Map<string, T[]> {
+export function constructReferenceMap<R extends string, T extends Resource&{[key in R]?: Reference|Reference[]}>(resources: T[], refProp: R): Map<string, T[]> {
     const refMap = new DefaultMap<string, T[]>(() => []);
     resources.forEach(res => {
-        const ref = res[refProp]?.reference;
-        if(ref === undefined) return;
-        
-        refMap.defaultGet(ref).push(res);
+        let refs: (Reference|undefined)[]|undefined;
+        if(Array.isArray(res[refProp])) {
+            refs = res[refProp] as Reference[]|undefined;
+        } else {
+            refs = [res[refProp] as Reference|undefined];
+        }
+        refs?.forEach(ref => {
+            if(ref?.reference === undefined) return;
+            refMap.defaultGet(ref?.reference).push(res);
+        })
     });
 
     return refMap;

@@ -1,11 +1,14 @@
-import { Condition, Encounter, Observation } from "fhir/r4";
+import { Condition, Encounter, Observation, Procedure } from "fhir/r4";
 import './index.scss';
 import { getResourcePath, optionalCompute } from 'utils/index'
+import { Icon } from "@blueprintjs/core";
 
 interface DevelopmentTableProps {
     encounters: Encounter[],
     conditionMap: Map<string, Condition[]>,
     observationMap: Map<string, Observation[]>,
+    procedures: Procedure[],
+    procedureObservationMapping: Map<string, Observation[]>,
 }
 
 function computeObservationData(observationList: Observation[]) {
@@ -34,7 +37,7 @@ function computeChange<T>(data1: {[K in keyof T]: number|undefined}, data2: {[K 
     const changeObj = {};
     for (const [key, value] of Object.entries<number|undefined>(data1)) {
         // @ts-ignore
-        changeObj[key] = optionalCompute((a:number, b:number)=>a/b, value, data2[key])
+        changeObj[key] = optionalCompute((a:number, b:number)=>100*(a/b-1), value, data2[key])
     }
 
     return changeObj as {[K in keyof T]: number|undefined} ;
@@ -49,20 +52,32 @@ function formatQuantityValue(quantity?: number): string {
     }
 }
 
+const dateTimeStrCompare = (dts1: string, dts2: string) => Date.parse(dts2) - Date.parse(dts1);
+
 export const DevelopmentTable = (props: DevelopmentTableProps) => {
 
-    // TODO: find correct encounter strings
-    const lastEncounterStr = getResourcePath(props.encounters[0]);
-    const currentEncounterStr = getResourcePath(props.encounters[0]);
+    const proceduresWithDateTime = props.procedures.filter(proc => proc.performedDateTime !== undefined);
+    if(proceduresWithDateTime.length < 2) {
+        return (<span>Es sind nicht genug PSG daten hinterlegt, um einen Verlauf darzustellen.</span>)
+    }
 
-    const lastObservations = props.observationMap.get(lastEncounterStr ?? '') ?? [];
-    const currentObservations = props.observationMap.get(currentEncounterStr ?? '') ?? [];
+    proceduresWithDateTime.sort((proc1, proc2) => optionalCompute(dateTimeStrCompare, proc1.performedDateTime, proc2.performedDateTime) ?? 0)
+    console.log(proceduresWithDateTime);
+
+    const lastProcedure = proceduresWithDateTime[1];
+    const currentProcedure = proceduresWithDateTime[0];
+
+    const lastProcedureStr = getResourcePath(lastProcedure);
+    const currentProcedureStr = getResourcePath(currentProcedure);
+
+    const lastObservations = props.procedureObservationMapping.get(lastProcedureStr ?? '') ?? [];
+    const currentObservations = props.procedureObservationMapping.get(currentProcedureStr ?? '') ?? [];
 
     console.debug(props.observationMap)
 
     const lastObservationData = computeObservationData(lastObservations)
     const currentObservationData = computeObservationData(currentObservations)
-    const dataChange = computeChange(lastObservationData, currentObservationData)
+    const dataChange = computeChange(currentObservationData, lastObservationData)
     console.log(dataChange)
 
     return (
@@ -70,8 +85,8 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
             <thead>
                 <tr>
                     <th></th>
-                    <th>Letzter Wert</th>
-                    <th>Aktueller Wert</th>
+                    <th>Letzter Wert<br/>{new Date(lastProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
+                    <th>Aktueller Wert<br/>{new Date(currentProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
                     <th>Entwicklung</th>
                 </tr>
             </thead>
@@ -80,7 +95,9 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                     <td>{'Apnoe Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.ApnoeIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.ApnoeIndex)}</td>
-                    <td>{formatQuantityValue(dataChange.ApnoeIndex)}</td>
+                    <td>{formatQuantityValue(dataChange.ApnoeIndex)} <Icon icon="arrow-right" style={{
+                        transform: 'rotate(90deg)'
+                    }}></Icon></td>
                 </tr>
                 <tr>
                     <td>{'Hypnopnoe Index (n/h)'}</td>
