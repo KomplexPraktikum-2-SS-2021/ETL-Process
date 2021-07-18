@@ -99,7 +99,7 @@ class EtlProcess:
             subject_ref = FHIRReference(procedure['subject'])
             encounter_ref = FHIRReference(procedure['encounter'])
             
-            fhir_elements = self.object_creator.create_observation(row, subject_ref, encounter_ref)
+            fhir_elements = self.object_creator.create_observation(row, subject_ref, encounter_ref, procedure_ref_id)
             for observation in fhir_elements:
                 self.server.post_json(path=ResourceName.OBSERVATION.value, resource_json=observation.as_json())
 
