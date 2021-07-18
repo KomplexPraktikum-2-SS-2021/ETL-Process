@@ -18,6 +18,23 @@ export function getMiliseconds(fhir_datetime: string) {
     return new Date(fhir_datetime.split(".", 2)[0]).getTime();
 }
 
+// returns the Poly Data filtered by the selected procedure id
+export function getSelPolyData(observations :Map<String, Observation[]>, fhir_proc_id: string) {
+    console.log("fhir_proc_id", fhir_proc_id);
+    const fhir_observations: Observation[] = checkObservIsValid(observations.get("Procedure/" + fhir_proc_id));
+    console.log("fhir_observs:", fhir_observations);
+    const new_observations: IObservEntry[] = [];
+
+    const createObservAndAppend = (observ: Observation) => {
+        const a_observ: IObservEntry = {name: getObsName(observ), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
+        new_observations.push(a_observ);
+    }
+
+    fhir_observations.forEach(x => createObservAndAppend(x));
+
+    return new_observations;
+}
+
 
 /**
  *  Getter Functions for Creating Case Objects
@@ -130,7 +147,7 @@ export function getType(cond: Condition) {
 }
 
 /**
- *  Getter Functions for Creating Diagnosis Objects
+ *  Getter Functions for Creating Procedure Objects
  */
 
 export function getFhirCaseIdProc(proc: Procedure) {
@@ -157,6 +174,79 @@ export function getProcId(proc: Procedure) {
         return "No Identifier exists";
     }
 }
+
+export function getFhirProcId(proc: Procedure) {
+    if (proc.id) {
+        return proc.id;
+    } else {
+        return "";
+    }
+}
+
+/**
+ *  Getter Functions for Creating Procedure Objects
+ */
+
+function checkObservIsValid(observations?: Observation[]) {
+    if (observations) {
+        return observations;
+    } else {
+        return [] as Observation[];
+    }
+}
+
+function getObsValue(observ: Observation) {
+    if (observ.valueQuantity) {
+        if (observ.valueQuantity.value) {
+            return observ.valueQuantity.value;
+        } else {
+            return 0;
+        }
+    } else {
+        return 0;
+    }
+}
+
+function getObsCode(observ: Observation) {
+    if (observ.valueQuantity) {
+        if (observ.valueQuantity.code) {
+            return observ.valueQuantity.code;
+        } else {
+            return "";
+        }
+    } else {
+        return ""
+    }
+}
+
+function getObsUnit(observ: Observation) {
+    if (observ.valueQuantity) {
+        if (observ.valueQuantity.unit) {
+            return observ.valueQuantity.unit;
+        } else {
+            return "";
+        }
+    } else {
+        return ""
+    }
+}
+
+function getObsName(observ: Observation) {
+    if (observ.code) {
+        if (observ.code.coding) {
+            if (observ.code.coding[0].display) {
+                return observ.code.coding[0].display;
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
+    } else {
+        return ""
+    }
+}
+
 
 
 
@@ -236,7 +326,8 @@ export interface ICase {
 export interface IProc {
     timestamp: string,  
     proc_id: string,               // Proceudre-Id
-    fhir_case_id: string
+    fhir_case_id: string,
+    fhir_proc_id: string
 }
 
 export interface IObserv {
@@ -246,8 +337,9 @@ export interface IObserv {
 
 export interface IObservEntry {
     code: string,   // Code of the observation
-    value: string,  // 
-    unit:string
+    value: number,  // 
+    unit:string,
+    name: string
 }
 
 export interface FilterProps {

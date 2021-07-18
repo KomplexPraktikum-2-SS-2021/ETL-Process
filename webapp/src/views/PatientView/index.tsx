@@ -22,26 +22,30 @@ async function getPatientData(id: string): Promise<PatientViewData> {
     const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
     const observations = bundle_resources.filter(res => res?.resourceType == 'Observation') as Observation[];
     const procedures = bundle_resources.filter(res => res?.resourceType == 'Procedure') as Procedure[];
-    console.log("Observations: ", observations);
-    console.log("Procedures: ", procedures);
+
     const conditionMap = constructReferenceMap(conditions, 'encounter');
     const observationMap = constructReferenceMap(observations, 'encounter');
+
+    const procedureObservationMapping = constructReferenceMap(observations, 'partOf');
+
 
     return {
         patient,
         encounters,
         conditionMap,
         observationMap,
-        procedures
+        procedures,
+        procedureObservationMapping
     }
 }
 
 type PatientViewData = {
     patient: Patient
     encounters: Encounter[],
-    procedures: Procedure[];
     conditionMap: Map<string, Condition[]>,
     observationMap: Map<string, Observation[]>,
+    procedures: Procedure[],
+    procedureObservationMapping: Map<string, Observation[]>,
 };
 
 
@@ -80,7 +84,7 @@ export const PatientView = () => {
                                 <Tab id="patient_view_details" title="Detailinformationen" panel={<DetailsView 
                                         encounters={state.data.encounters}
                                         conditionMap={state.data.conditionMap}
-                                        observationMap={state.data.observationMap}
+                                        observationMap={state.data.procedureObservationMapping}
                                         procedures={state.data.procedures}
                                     />}
                                 />
@@ -88,6 +92,8 @@ export const PatientView = () => {
                                         encounters={state.data.encounters}
                                         conditionMap={state.data.conditionMap}
                                         observationMap={state.data.observationMap}
+                                        procedures={state.data.procedures}
+                                        procedureObservationMapping={state.data.procedureObservationMapping}
                                     />}
                                 />
                             </Tabs>

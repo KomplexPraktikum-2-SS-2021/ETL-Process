@@ -8,7 +8,7 @@ import { Button } from '@blueprintjs/core';
 import { ICase, IDiag, IObserv, IObservEntry, IProc,
         renderCase, renderProc,
         getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds,
-        getFhirCaseIdProc, getProcId } from './utils';
+        getFhirCaseIdProc, getProcId, getFhirProcId, getSelPolyData } from './utils';
 import { DiagnosisRow, PolySomnoView } from './elements';
 
 
@@ -55,13 +55,19 @@ function transformIntoProcObsArray(fhir_proc_array: Procedure[]):IProc[] {
     const procedures: IProc[] = [];
 
     const createProcAndAppend = (proc: Procedure) => {
-        const a_proc: IProc = {fhir_case_id: getFhirCaseIdProc(proc), proc_id: getProcId(proc), timestamp: ""};
+        const a_proc: IProc = {fhir_case_id: getFhirCaseIdProc(proc), proc_id: getProcId(proc), timestamp: "", fhir_proc_id: getFhirProcId(proc)};
         procedures.push(a_proc);
     }
 
     fhir_proc_array.forEach(x => createProcAndAppend(x));
 
     return procedures;
+}
+
+function transformIntoPolyArray(fhir_poly_smno_array: Observation[]) {
+    const observations: IObserv[] = [];
+
+    return observations;
 }
 
 /**  <select>{data.map((x, y) => <option key={y}>{x}</option>)}</select>  */
@@ -107,6 +113,8 @@ export const DetailsView = ({
     const cases = transformIntoArray(encounters);
     const diagnoses = transformIntoDiagArray(conditionMap);
     const m_procedures = transformIntoProcObsArray(procedures);
+    console.log("ObservationMap: ", observationMap);
+    console.log("Proceudres: ", m_procedures);
 
     const [selected_case, setCase] = useState(cases[0]);
     const [diag, setDiagState] = useState({
@@ -114,8 +122,18 @@ export const DetailsView = ({
         discharge: {name: "", code: "", type: "discharge", fhir_case_id: ""} as IDiag,
     });
     const [proc_list, setProcList] = useState([] as IProc[])
-    const [selected_proc, setProc] = useState(proc_list[0]);
-    const [selected_poly_date, setPolyDate] = useState("");
+    const [selected_proc, setProc] = useState(m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id)[0]);
+    const [poly_somno_data, setPolySomnoData] = useState(getSelPolyData(observationMap, selected_proc.fhir_proc_id));
+
+    function polyDataIsLoading() {
+        if (poly_somno_data === []) {
+            console.log("poly_data: ", poly_somno_data);
+            return true;
+        } else {
+            console.log("poly_data: ", poly_somno_data);
+            return false;
+        }
+    }
 
     useEffect(() => {
         /*Update view by searching the respective */
@@ -131,9 +149,14 @@ export const DetailsView = ({
         const filtered_proc = m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id);
         setProcList(filtered_proc);
         setProc(filtered_proc[0]);
-        setPolyDate("");
+        setPolySomnoData(getSelPolyData(observationMap, filtered_proc[0].fhir_proc_id));
         console.log("Selected Case has changed");
     }, [selected_case])
+
+
+    useEffect(() => {
+        setPolySomnoData(getSelPolyData(observationMap, selected_proc.fhir_proc_id));
+    }, [selected_proc])
 
     const handleCaseSelect = useCallback(
         (a_case: ICase) => {
@@ -180,6 +203,7 @@ export const DetailsView = ({
                         items={proc_list}
                         itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
                         onItemSelect={handleProcSelect}
+                        filterable={false}
                     >
                         <Button 
                             rightIcon="caret-down"
@@ -187,7 +211,13 @@ export const DetailsView = ({
                         />
                     </ProcSelect>
                 </div>
-                <PolySomnoView />
+                {
+                    polyDataIsLoading() ? (
+                        null
+                    ) : (
+                        <PolySomnoView observations={poly_somno_data}/>
+                    )
+                }
             </div>
         </div>
     )

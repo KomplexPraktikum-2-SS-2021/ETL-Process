@@ -1,11 +1,15 @@
-import { Condition, Encounter, Observation } from "fhir/r4";
+import { Condition, Encounter, Observation, Procedure } from "fhir/r4";
 import './index.scss';
 import { getResourcePath, optionalCompute } from 'utils/index'
+import { Icon } from "@blueprintjs/core";
+import { interpolateCividis } from "d3-scale-chromatic";
 
 interface DevelopmentTableProps {
     encounters: Encounter[],
     conditionMap: Map<string, Condition[]>,
     observationMap: Map<string, Observation[]>,
+    procedures: Procedure[],
+    procedureObservationMapping: Map<string, Observation[]>,
 }
 
 function computeObservationData(observationList: Observation[]) {
@@ -34,7 +38,7 @@ function computeChange<T>(data1: {[K in keyof T]: number|undefined}, data2: {[K 
     const changeObj = {};
     for (const [key, value] of Object.entries<number|undefined>(data1)) {
         // @ts-ignore
-        changeObj[key] = optionalCompute((a:number, b:number)=>a/b, value, data2[key])
+        changeObj[key] = optionalCompute((a:number, b:number)=>100*(a/b-1), value, data2[key])
     }
 
     return changeObj as {[K in keyof T]: number|undefined} ;
@@ -49,20 +53,56 @@ function formatQuantityValue(quantity?: number): string {
     }
 }
 
+function formatChange(change?: number) {
+    if(change === undefined){
+        return '---';
+    } else {
+        return <>
+            <span>{numberFormatter.format(change)+' %'}</span>
+        </>
+    }
+}
+
+function changeArrow(change?: number) {
+    if(change === undefined){
+        return <Icon icon="minus"/>;
+    } else {
+        return <>
+            <Icon icon="arrow-right" style={{
+                transform: `rotate(${-Math.atan(change/100)}rad)`,
+                color: interpolateCividis(-Math.atan(change/100))
+            }}/>
+        </>
+    }
+}
+
+
+const dateTimeStrCompare = (dts1: string, dts2: string) => Date.parse(dts2) - Date.parse(dts1);
+
 export const DevelopmentTable = (props: DevelopmentTableProps) => {
 
-    // TODO: find correct encounter strings
-    const lastEncounterStr = getResourcePath(props.encounters[0]);
-    const currentEncounterStr = getResourcePath(props.encounters[0]);
+    const proceduresWithDateTime = props.procedures.filter(proc => proc.performedDateTime !== undefined);
+    if(proceduresWithDateTime.length < 2) {
+        return (<span>Es sind nicht genug PSG daten hinterlegt, um einen Verlauf darzustellen.</span>)
+    }
 
-    const lastObservations = props.observationMap.get(lastEncounterStr ?? '') ?? [];
-    const currentObservations = props.observationMap.get(currentEncounterStr ?? '') ?? [];
+    proceduresWithDateTime.sort((proc1, proc2) => optionalCompute(dateTimeStrCompare, proc1.performedDateTime, proc2.performedDateTime) ?? 0)
+    console.log(proceduresWithDateTime);
+
+    const lastProcedure = proceduresWithDateTime[1];
+    const currentProcedure = proceduresWithDateTime[0];
+
+    const lastProcedureStr = getResourcePath(lastProcedure);
+    const currentProcedureStr = getResourcePath(currentProcedure);
+
+    const lastObservations = props.procedureObservationMapping.get(lastProcedureStr ?? '') ?? [];
+    const currentObservations = props.procedureObservationMapping.get(currentProcedureStr ?? '') ?? [];
 
     console.debug(props.observationMap)
 
     const lastObservationData = computeObservationData(lastObservations)
     const currentObservationData = computeObservationData(currentObservations)
-    const dataChange = computeChange(lastObservationData, currentObservationData)
+    const dataChange = computeChange(currentObservationData, lastObservationData)
     console.log(dataChange)
 
     return (
@@ -70,9 +110,10 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
             <thead>
                 <tr>
                     <th></th>
-                    <th>Letzter Wert</th>
-                    <th>Aktueller Wert</th>
+                    <th>Letzter Wert<br/>{new Date(lastProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
+                    <th>Aktueller Wert<br/>{new Date(currentProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
                     <th>Entwicklung</th>
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -80,67 +121,78 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                     <td>{'Apnoe Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.ApnoeIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.ApnoeIndex)}</td>
-                    <td>{formatQuantityValue(dataChange.ApnoeIndex)}</td>
+                    <td>{formatChange(dataChange.ApnoeIndex)}</td>
+                    <td>{changeArrow(dataChange.ApnoeIndex)}</td>
                 </tr>
                 <tr>
                     <td>{'Hypnopnoe Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.HypnopnoeIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.HypnopnoeIndex)}</td>
-                    <td>{formatQuantityValue(dataChange.HypnopnoeIndex)}</td>
+                    <td>{formatChange(dataChange.HypnopnoeIndex)}</td>
+                    <td>{changeArrow(dataChange.HypnopnoeIndex)}</td>
                 </tr>
                 <tr>
                     <td>{'RERA Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.RERAIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.RERAIndex)}</td>
-                    <td>{formatQuantityValue(dataChange.RERAIndex)}</td>
+                    <td>{formatChange(dataChange.RERAIndex)}</td>
+                    <td>{changeArrow(dataChange.RERAIndex)}</td>
                 </tr>
                 <tr>
                     <td>{'AHI'}</td>
                     <td>{formatQuantityValue(lastObservationData.AHI)}</td>
                     <td>{formatQuantityValue(currentObservationData.AHI)}</td>
-                    <td>{formatQuantityValue(dataChange.AHI)}</td>
+                    <td>{formatChange(dataChange.AHI)}</td>
+                    <td>{changeArrow(dataChange.AHI)}</td>
                 </tr>
                 <tr>
                     <td>{'RDI'}</td>
                     <td>{formatQuantityValue(lastObservationData.RDI)}</td>
                     <td>{formatQuantityValue(currentObservationData.RDI)}</td>
-                    <td>{formatQuantityValue(dataChange.RDI)}</td>
+                    <td>{formatChange(dataChange.RDI)}</td>
+                    <td>{changeArrow(dataChange.RDI)}</td>
                 </tr>
                 <tr>
                     <td>{'RDI / AHI (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.RDIpAHI)}</td>
                     <td>{formatQuantityValue(currentObservationData.RDIpAHI)}</td>
-                    <td>{formatQuantityValue(dataChange.RDIpAHI)}</td>
+                    <td>{formatChange(dataChange.RDIpAHI)}</td>
+                    <td>{changeArrow(dataChange.RDIpAHI)}</td>
                 </tr>
                 <tr>
                     <td>{'Schlaflatenz (min)'}</td>
                     <td>{formatQuantityValue(lastObservationData.Schlaflatenz)}</td>
                     <td>{formatQuantityValue(currentObservationData.Schlaflatenz)}</td>
-                    <td>{formatQuantityValue(dataChange.Schlaflatenz)}</td>
+                    <td>{formatChange(dataChange.Schlaflatenz)}</td>
+                    <td>{changeArrow(dataChange.Schlaflatenz)}</td>
                 </tr>
                 <tr>
                     <td>{'Schnarchzeit (min)'}</td>
                     <td>{formatQuantityValue(lastObservationData.Schnarchzeit)}</td>
                     <td>{formatQuantityValue(currentObservationData.Schnarchzeit)}</td>
-                    <td>{formatQuantityValue(dataChange.Schnarchzeit)}</td>
+                    <td>{formatChange(dataChange.Schnarchzeit)}</td>
+                    <td>{changeArrow(dataChange.Schnarchzeit)}</td>
                 </tr>
                 <tr>
                     <td>{'totale Schlafzeit (min)'}</td>
                     <td>{formatQuantityValue(lastObservationData.totaleSchlafzeit)}</td>
                     <td>{formatQuantityValue(currentObservationData.totaleSchlafzeit)}</td>
-                    <td>{formatQuantityValue(dataChange.totaleSchlafzeit)}</td>
+                    <td>{formatChange(dataChange.totaleSchlafzeit)}</td>
+                    <td>{changeArrow(dataChange.totaleSchlafzeit)}</td>
                 </tr>
                 <tr>
                     <td>{'Schnarchen Total (%TST)'}</td>
                     <td>{formatQuantityValue(lastObservationData.SchnarchenTotal)}</td>
                     <td>{formatQuantityValue(currentObservationData.SchnarchenTotal)}</td>
-                    <td>{formatQuantityValue(dataChange.SchnarchenTotal)}</td>
+                    <td>{formatChange(dataChange.SchnarchenTotal)}</td>
+                    <td>{changeArrow(dataChange.SchnarchenTotal)}</td>
                 </tr>
                 <tr>
                     <td>{'PLM Index'}</td>
                     <td>{formatQuantityValue(lastObservationData.PLMIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.PLMIndex)}</td>
-                    <td>{formatQuantityValue(dataChange.PLMIndex)}</td>
+                    <td>{formatChange(dataChange.PLMIndex)}</td>
+                    <td>{changeArrow(dataChange.PLMIndex)}</td>
                 </tr>
             </tbody>
         </table>
