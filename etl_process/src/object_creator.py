@@ -353,5 +353,6 @@ class ObjectCreator:
         procedure.subject = subject_ref
         procedure.encounter = self._construct_reference(ResourceName.ENCOUNTER, encounter_ref_id)
         procedure.code = code
+        procedure.performedDateTime = ObjectCreator._parse_date_time(procedure_row['timestamp'])
 
         return procedure
