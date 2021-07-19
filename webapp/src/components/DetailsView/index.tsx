@@ -150,10 +150,6 @@ export const DetailsView = ({
         }
     }
 
-    function isDiagnoseAvailable() {
-
-    }
-
     useEffect(() => {
         /*Update view by searching the respective */
         const adm_diag: IDiag[] = diagnoses.filter(diag => diag.fhir_case_id === selected_case.fhir_id && diag.type === "admission");
@@ -194,6 +190,7 @@ export const DetailsView = ({
                         items={cases}
                         itemRenderer={renderCase}   /** renderCase: determines, how the case entry is displayed in the Selection List */
                         onItemSelect={handleCaseSelect}
+                        filterable={false}
                     >
                         <Button 
                             rightIcon="caret-down"

@@ -1,6 +1,7 @@
 import { ItemPredicate, ItemRenderer, IItemRendererProps} from '@blueprintjs/select'
 import { MenuItem } from '@blueprintjs/core'
 import { Encounter, Condition, Procedure, Observation } from "fhir/r4";
+import { Key } from 'readline';
 
 
 /**
@@ -18,19 +19,63 @@ export function getMiliseconds(fhir_datetime: string) {
     return new Date(fhir_datetime.split(".", 2)[0]).getTime();
 }
 
+function createObservEntry(observ: Observation) {
+    let mapping_code_name = new Map()
+    mapping_code_name.set('90562-0', 'Apnea Index');
+    mapping_code_name.set('90561-2', 'Hypnopnea Index');
+    mapping_code_name.set('90565-3', 'RERA Index');
+    mapping_code_name.set('69990-0', 'AHI');
+    mapping_code_name.set('90566-1', 'RDI');
+    mapping_code_name.set('93832-4', 'Totale Schlafzeit');
+    mapping_code_name.set('418763003', 'PLM Index');
+    mapping_code_name.set('72863001', 'Schnarchzeit');
+    mapping_code_name.set('Schlaflatenz', 'Schlaflatenz');
+
+    return {name: mapping_code_name.get(getObsCode(observ)), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
+}
+
 // returns the Poly Data filtered by the selected procedure id
 export function getSelPolyData(observations :Map<String, Observation[]>, fhir_proc_id: string) {
-    console.log("fhir_proc_id", fhir_proc_id);
     const fhir_observations: Observation[] = checkObservIsValid(observations.get("Procedure/" + fhir_proc_id));
-    console.log("fhir_observs:", fhir_observations);
     const new_observations: IObservEntry[] = [];
+    let RDI: number = 0;
+    let AHI: number = 0;
+    let Schnarchzeit: number = 0;
+    let totaleSchlafzeit: number = 0;
+
+    const calculateRDIpAHI = () => {
+        if (RDI === 0 || AHI === 0) {
+            return 0;
+        } else {
+            return Math.round(RDI / AHI);
+        }
+    }
+
+    const calculateTotalSchnarchen = () => {
+        if (Schnarchzeit === 0 || totaleSchlafzeit === 0) {
+            return 0;
+        } else {
+            return Schnarchzeit / totaleSchlafzeit * 100;
+        }
+    }
 
     const createObservAndAppend = (observ: Observation) => {
-        const a_observ: IObservEntry = {name: getObsName(observ), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
+        const a_observ: IObservEntry = createObservEntry(observ);
         new_observations.push(a_observ);
+        if (a_observ.code === '69990-0') {
+            AHI = a_observ.value;
+        } else if (a_observ.code === '90566-1') {
+            RDI = a_observ.value;
+        } else if (a_observ.name === '72863001') {
+            Schnarchzeit = a_observ.value;
+        } else if (a_observ.name === '93832-4') {
+            totaleSchlafzeit = a_observ.value;
+        }
     }
 
     fhir_observations.forEach(x => createObservAndAppend(x));
+    new_observations.push({name: "RDI / AHI", value: calculateRDIpAHI(), code: "", unit: "n/h"});
+    new_observations.push({name: "Schnarchen Total", value: calculateTotalSchnarchen(), code: "", unit: "%TST"});
 
     return new_observations;
 }
