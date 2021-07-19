@@ -112,7 +112,7 @@ export const DetailsView = ({
 
     const cases = transformIntoArray(encounters);
     const diagnoses = transformIntoDiagArray(conditionMap);
-    const m_procedures = transformIntoProcObsArray(procedures);
+    const m_procedures: IProc[] = transformIntoProcObsArray(procedures);
     console.log("ObservationMap: ", observationMap);
     console.log("Proceudres: ", m_procedures);
 
@@ -122,55 +122,67 @@ export const DetailsView = ({
         discharge: {name: "", code: "", type: "discharge", fhir_case_id: ""} as IDiag,
     });
     const [proc_list, setProcList] = useState([] as IProc[])
-    const [selected_proc, setProc] = useState(m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id)[0]);
-    const [poly_somno_data, setPolySomnoData] = useState(getSelPolyData(observationMap, selected_proc.fhir_proc_id));
+    
+    const [selected_proc, setProc] = useState(getSelProc());
+    const [poly_somno_data, setPolySomnoData] = useState(getPolySomnoData());
 
-    function polyDataIsLoading() {
+    function getSelProc() {
+        if (cases.length !==  0) {
+            return m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id)[0]
+        } else {
+            return {} as IProc;
+        }
+    }
+
+    function getPolySomnoData() {
+        if (selected_proc !== undefined) {
+            return getSelPolyData(observationMap, selected_proc.fhir_proc_id)
+        } else {
+            return [] as IObservEntry[];
+        }
+    }
+
+    function isPolyDataAvailable() {
         if (poly_somno_data === []) {
-            console.log("poly_data: ", poly_somno_data);
             return true;
         } else {
-            console.log("poly_data: ", poly_somno_data);
             return false;
         }
+    }
+
+    function isDiagnoseAvailable() {
+
     }
 
     useEffect(() => {
         /*Update view by searching the respective */
         const adm_diag: IDiag[] = diagnoses.filter(diag => diag.fhir_case_id === selected_case.fhir_id && diag.type === "admission");
         const dis_diag: IDiag[] = diagnoses.filter(diag => diag.fhir_case_id === selected_case.fhir_id && diag.type === "discharge");
-        if (dis_diag.length === 0) {
-            const default_diag: IDiag = {name: "", code: "", type: "discharge", fhir_case_id: ""}
-            setDiagState({admission: adm_diag[0], discharge: default_diag});
-        } else {
-            setDiagState({admission: adm_diag[0], discharge: dis_diag[0]});
-        }
+        setDiagState({admission: adm_diag[0], discharge: dis_diag[0]});
         /* Updating  */
         const filtered_proc = m_procedures.filter(proc => proc.fhir_case_id === selected_case.fhir_id);
-        setProcList(filtered_proc);
-        setProc(filtered_proc[0]);
-        setPolySomnoData(getSelPolyData(observationMap, filtered_proc[0].fhir_proc_id));
+        if (filtered_proc.length !== 0) {
+            setProcList(filtered_proc);
+            setProc(filtered_proc[0]);
+            setPolySomnoData(getSelPolyData(observationMap, filtered_proc[0].fhir_proc_id));
+        }
         console.log("Selected Case has changed");
     }, [selected_case])
 
 
     useEffect(() => {
-        setPolySomnoData(getSelPolyData(observationMap, selected_proc.fhir_proc_id));
+        setPolySomnoData(getPolySomnoData());
     }, [selected_proc])
 
     const handleCaseSelect = useCallback(
         (a_case: ICase) => {
             setCase(a_case);
-        },
-        [],
-    )
+    }, [], )
 
     const handleProcSelect = useCallback(
         (a_proc: IProc) => {
             setProc(a_proc);
-        },
-        [],
-    )
+    }, [], )
 
     return (
         <div className={`details-view-container`}>
@@ -191,10 +203,8 @@ export const DetailsView = ({
                 </div>
                 <h3>Diagnose</h3>
                 <DiagnosisRow
-                    diag_name_admission={diag.admission.name}
-                    diag_code_admission={diag.admission.code}
-                    diag_name_discharge={diag.discharge.name}
-                    diag_code_discharge={diag.discharge.code}
+                    diag_admission={diag.admission}
+                    diag_discharge={diag.discharge}
                 />
                 <h3>Polysomnographie Befunde</h3>
                 <div className={`details-view__label-selection-element`}>
@@ -212,7 +222,7 @@ export const DetailsView = ({
                     </ProcSelect>
                 </div>
                 {
-                    polyDataIsLoading() ? (
+                    isPolyDataAvailable() ? (
                         null
                     ) : (
                         <PolySomnoView observations={poly_somno_data}/>

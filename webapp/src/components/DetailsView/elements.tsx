@@ -1,23 +1,32 @@
-import { IObservEntry } from './utils'
+import { IDiag, IObservEntry } from './utils'
 
 export const DiagnosisRow = ({
-    diag_code_discharge,
-    diag_code_admission,
-    diag_name_admission,
-    diag_name_discharge
+    diag_admission,
+    diag_discharge
     
 }: DiagProps) => {
+
+    console.log("diag_admission:", diag_discharge)
 
     return (
         <div className={`details-view__diag-row`}>
             <b>Aufnahme:</b>
-            <div>
-                {diag_name_admission + " (" + diag_code_admission + ")"}
-            </div>
+                {
+                    diag_admission? (
+                        <div>
+                            {diag_admission.name + " (" + diag_admission.code + ")"}
+                        </div>
+
+                    ) : null
+                }
             <b>Entlassung:</b>
-            <div>
-                {diag_name_discharge + " (" + diag_code_discharge + ")"}
-            </div>
+                {
+                    diag_discharge? (
+                        <div>
+                            {diag_discharge.name + " (" + diag_discharge.code + ")"}
+                        </div>
+                    ) : null
+                }
         </div>
     )
 }
@@ -81,20 +90,24 @@ export const PolySomnoView = ({
     const m_observations = convertIntoDoubleEntries(observations);
     console.log(m_observations);
 
-    return (
-        <table className={`poly-data-table`}>
-            <TableRow attrib_1_title={observations[0].name} attrib_1_value={observations[0].value.toString()} attrib_1_unit={observations[0].unit}
-                        attrib_2_title={observations[1].name} attrib_2_value={observations[1].value.toString()} attrib_2_unit={observations[1].unit}/>
-            <TableRow attrib_1_title={observations[2].name} attrib_1_value={observations[2].value.toString()} attrib_1_unit={observations[2].unit}
-                        attrib_2_title={observations[3].name} attrib_2_value={observations[3].value.toString()} attrib_2_unit={observations[3].unit}/>
-            <TableRow attrib_1_title={observations[4].name} attrib_1_value={observations[4].value.toString()} attrib_1_unit={observations[4].unit}
-                        attrib_2_title={observations[5].name} attrib_2_value={observations[5].value.toString()} attrib_2_unit={observations[5].unit}/>
-            <TableRow attrib_1_title={observations[6].name} attrib_1_value={observations[6].value.toString()} attrib_1_unit={observations[6].unit}
-                        attrib_2_title={observations[7].name} attrib_2_value={observations[7].value.toString()} attrib_2_unit={observations[7].unit}/>
-            <TableRow attrib_1_title={observations[8].name} attrib_1_value={observations[8].value.toString()} attrib_1_unit={observations[8].unit}
-                        attrib_2_title="" attrib_2_value="" attrib_2_unit=""/>
-        </table>
-    )
+    if (observations.length !== 0) {
+        return (
+            <table className={`poly-data-table`}>
+                <TableRow attrib_1_title={observations[0].name} attrib_1_value={observations[0].value.toString()} attrib_1_unit={observations[0].unit}
+                            attrib_2_title={observations[1].name} attrib_2_value={observations[1].value.toString()} attrib_2_unit={observations[1].unit}/>
+                <TableRow attrib_1_title={observations[2].name} attrib_1_value={observations[2].value.toString()} attrib_1_unit={observations[2].unit}
+                            attrib_2_title={observations[3].name} attrib_2_value={observations[3].value.toString()} attrib_2_unit={observations[3].unit}/>
+                <TableRow attrib_1_title={observations[4].name} attrib_1_value={observations[4].value.toString()} attrib_1_unit={observations[4].unit}
+                            attrib_2_title={observations[5].name} attrib_2_value={observations[5].value.toString()} attrib_2_unit={observations[5].unit}/>
+                <TableRow attrib_1_title={observations[6].name} attrib_1_value={observations[6].value.toString()} attrib_1_unit={observations[6].unit}
+                            attrib_2_title={observations[7].name} attrib_2_value={observations[7].value.toString()} attrib_2_unit={observations[7].unit}/>
+                <TableRow attrib_1_title={observations[8].name} attrib_1_value={observations[8].value.toString()} attrib_1_unit={observations[8].unit}
+                            attrib_2_title="" attrib_2_value="" attrib_2_unit=""/>
+            </table>
+        )
+    } else {
+        return (null)
+    }
 }
 
 interface PolyProps {
@@ -102,10 +115,8 @@ interface PolyProps {
 }
 
 interface DiagProps {
-    diag_code_discharge: string,
-    diag_name_discharge: string,
-    diag_code_admission: string,
-    diag_name_admission: string
+    diag_discharge: IDiag,
+    diag_admission: IDiag
 }
 
 interface RowPros {

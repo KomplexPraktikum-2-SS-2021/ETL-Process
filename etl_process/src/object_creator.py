@@ -58,6 +58,7 @@ class ObjectCreator:
     }
 
     _condition_description_dict: Dict[str, str] = {
+        'G25.80' : "Periodische Beinbewegungen im Schlaf",
         'G25.81' : 'Syndrom der unruhigen Beine', #Restless-Legs-Syndrom
         'G47.2' : 'Störungen des Schlaf-Wach-Rhythmus',
         'G47.31' : 'Obstruktives Schlafapnoesyndrom',
@@ -65,6 +66,8 @@ class ObjectCreator:
         'G47.39' : 'Schlafapnoe, nicht näher bezeichnet',
         'G47.4' : 'Narkolepsie und Kataplexie',
         'G47.8' : 'Sonstige Schlafstörungen',
+        'G82.13' : 'Spastische Paraparese und Paraplegie Chronische inkomplette Querschnittlähmung',
+        'G82.49' : 'Spastische Tetraparese und Tetraplegie Nicht näher bezeichnet',
         'R06.3' : 'Periodische Atmung',
         'S06.9' : 'Intrakranielle Verletzung',
         'F51.0' : 'Nichtorganische Insomnie',

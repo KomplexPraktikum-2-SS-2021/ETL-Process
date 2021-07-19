@@ -1,0 +1,13 @@
+id;case_id;MAIN_OR_SECONDARY;type;code;system;version
+54272794;41162518;H;"""""Aufnahmediagnose""""";"""""G47.31""""""";ICD-10-GM;2020
+54272795;41162518;H;"""""Entlassdiagnose""""";"""""F51.0""""""";ICD-10-GM;2020
+54272796;41162519;H;"""""Aufnahmediagnose""""";"""""G25.80""""""";ICD-10-GM;2020
+54272797;41162519;H;"""""Entlassdiagnose""""";"""""G25.81""""""";ICD-10-GM;2020
+54272798;41162520;H;"""""Aufnahmediagnose""""";"""""G47.31""""""";ICD-10-GM;2020
+54272799;41162520;H;"""""Entlassdiagnose""""";"""""G47.31""""""";ICD-10-GM;2020
+54272800;41162521;H;"""""Aufnahmediagnose""""";"""""G82.49""""""";ICD-10-GM;2020
+54272801;41162521;H;"""""Entlassdiagnose""""";"""""G82.13""""""";ICD-10-GM;2020
+54272802;41162522;H;"""""Aufnahmediagnose""""";"""""G47.31""""""";ICD-10-GM;2020
+54272803;41162522;H;"""""Entlassdiagnose""""";"""""F51.0""""""";ICD-10-GM;2020
+54272804;41162523;H;"""""Aufnahmediagnose""""";"""""G47.39""""""";ICD-10-GM;2020
+54272805;41162523;H;"""""Entlassdiagnose""""";;ICD-10-GM;2020
