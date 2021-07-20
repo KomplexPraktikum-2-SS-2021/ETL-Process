@@ -109,6 +109,23 @@ export const PatientView = () => {
 
 export const AdminView = ({patient}: AdminViewProps) => {
 
+    function getExtension() {
+        if (patient.extension) {
+            if (patient.extension[0].valueAnnotation) {
+                if (patient.extension[0].valueAnnotation.text === 'no follow-up available') {
+                    return "nicht verfügbar"
+                } else {
+                    return patient.extension[0].valueAnnotation.text;
+                }
+            } else {
+                return "";
+            }
+        } else {
+            return "";
+        }
+    }
+    console.log("Follow-up: ", getExtension());
+
     const getAddress = () => {
         if (patient.address) {
             const address_object = patient.address[0]
@@ -159,7 +176,7 @@ export const AdminView = ({patient}: AdminViewProps) => {
             <table className={`patient-view-table-style`}>
                 <TableRow attrib_name1={"Name"} attrib_name2={"Vorname"} attrib_value1={getFamilyName()} attrib_value2={getName()} />
                 <TableRow attrib_name1={"Geburtsdatum"} attrib_name2={"Geschlecht"} attrib_value1={getBirthdate()} attrib_value2={getGender()} />
-                <TableRow attrib_name1={"Wohnadresse"} attrib_value1={getAddress()} />
+                <TableRow attrib_name1={"Wohnadresse"} attrib_value1={getAddress()} attrib_name2={"Nächster Termin"} attrib_value2={getExtension()}/>
             </table>
         </div>
     

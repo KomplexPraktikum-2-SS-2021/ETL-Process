@@ -47,7 +47,7 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
         if (RDI === 0 || AHI === 0) {
             return 0;
         } else {
-            return Math.round(RDI / AHI);
+            return Number((RDI / AHI).toFixed(2));
         }
     }
 
@@ -55,7 +55,7 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
         if (Schnarchzeit === 0 || totaleSchlafzeit === 0) {
             return 0;
         } else {
-            return Schnarchzeit / totaleSchlafzeit * 100;
+            return Number((Schnarchzeit / totaleSchlafzeit * 100).toFixed(2));
         }
     }
 
@@ -66,9 +66,9 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
             AHI = a_observ.value;
         } else if (a_observ.code === '90566-1') {
             RDI = a_observ.value;
-        } else if (a_observ.name === '72863001') {
+        } else if (a_observ.code === '72863001') {
             Schnarchzeit = a_observ.value;
-        } else if (a_observ.name === '93832-4') {
+        } else if (a_observ.code === '93832-4') {
             totaleSchlafzeit = a_observ.value;
         }
     }

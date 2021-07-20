@@ -13,6 +13,7 @@ import numpy as np
 import math
 import re
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 from time import gmtime, strftime
 
 from fhirclient import client
@@ -35,6 +36,7 @@ from fhirclient.models.observation import Observation
 from fhirclient.models.procedure import Procedure
 from fhirclient.models.meta import Meta
 from fhirclient.models.annotation import Annotation
+from fhirclient.models.extension import Extension
 
 
 class ObjectCreator:
@@ -55,6 +57,10 @@ class ObjectCreator:
         'Schlaflatenz (min)':       ('Schlaflatenz',     'min',          'Schlaflatenz'),
         'PLM Index':                ('418763003', '{events}/h',          'PLM Index'),
         'Schnarchzeit (min)':       ('72863001' ,        'min',          'Schnarchzeit'),
+    }
+
+    _case_custom_mapping_dict: Dict[str, str] = {
+        'follow-up (in months)':    'follow_up'
     }
 
     _condition_description_dict: Dict[str, str] = {
@@ -177,10 +183,14 @@ class ObjectCreator:
 
     def __init__(self, tag: str) -> None:
         self.tag = tag
+    
+    def get_date_as_miliseconds(self, date_str) -> int:
+        return datetime.strptime(date_str, "%y-%m-%d %H:%M:%S").timestamp()
+            
 
     # --------------------------- Object create methods -------------------------- #
 
-    def create_patient(self, patient_row: pd.Series) -> Patient:
+    def create_patient(self, patient_row: pd.Series, patient_cases: pd.Series) -> Patient:
 
         name = HumanName()
         name.given = [patient_row.first_name]
@@ -199,6 +209,40 @@ class ObjectCreator:
         patient.gender = ObjectCreator._map_gender(patient_row.sex)
         patient.birthDate = ObjectCreator._parse_date(patient_row.date_of_birth)
         patient.address = [address]
+
+        ext = Extension()
+        annotation = Annotation()
+        annotation.text = ""
+
+        calender_terms_mapping = {
+            1 : "Januar",
+            2 : "Februar",
+            3 : "März",
+            4 : "April",
+            5 : "Mai",
+            6 : "Juni",
+            7 : "Juli",
+            8 : "August",
+            9 : "September",
+            10 : "Oktober",
+            11 : "November",
+            12 : "Dezember"
+        }
+        
+        if (patient_cases != []):
+            most_recently_case = patient_cases[0]
+            for case_row in patient_cases:
+                if (datetime.strptime(most_recently_case.admission.split('.', maxsplit=-1)[0], "%Y-%m-%d %H:%M:%S").timestamp() < datetime.strptime(case_row.admission.split('.', maxsplit=-1)[0], "%Y-%m-%d %H:%M:%S").timestamp()):
+                    most_recently_case = case_row
+            # if the case already has a value for the next meeting
+            if (most_recently_case["follow-up (in months)"] == most_recently_case["follow-up (in months)"]):
+                next_meeting = datetime.strptime(most_recently_case.discharge.split('.', maxsplit=-1)[0], "%Y-%m-%d %H:%M:%S") + relativedelta(months=+int(most_recently_case["follow-up (in months)"]))
+                annotation.text = calender_terms_mapping[next_meeting.month] + " " + str(next_meeting.year)
+            else:
+                annotation.text = "no follow-up available"
+        ext.valueAnnotation = annotation
+        ext.url = ""
+        patient.extension = [ext]
 
         return patient
 

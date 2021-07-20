@@ -111,10 +111,9 @@ export const DetailsView = ({
 }: DetailProps) => {
 
     const cases = transformIntoArray(encounters);
+    console.log("cases: ", encounters);
     const diagnoses = transformIntoDiagArray(conditionMap);
     const m_procedures: IProc[] = transformIntoProcObsArray(procedures);
-    console.log("ObservationMap: ", observationMap);
-    console.log("Proceudres: ", m_procedures);
 
     const [selected_case, setCase] = useState(cases[0]);
     const [diag, setDiagState] = useState({
