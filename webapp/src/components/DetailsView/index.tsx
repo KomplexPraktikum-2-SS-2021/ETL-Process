@@ -6,7 +6,7 @@ import { Condition, Encounter, Observation, Procedure } from "fhir/r4";
 import { Select } from '@blueprintjs/select';
 import { Button } from '@blueprintjs/core';
 import { ICase, IDiag, IObserv, IObservEntry, IProc,
-        renderCase, renderProc,
+        renderCase, filterCase, renderProc,
         getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds,
         getFhirCaseIdProc, getProcId, getFhirProcId, getSelPolyData } from './utils';
 import { DiagnosisRow, PolySomnoView } from './elements';
@@ -187,9 +187,9 @@ export const DetailsView = ({
                     <Label text="Fall"/>
                     <CaseSelect
                         items={cases}
+                        itemPredicate={filterCase}
                         itemRenderer={renderCase}   /** renderCase: determines, how the case entry is displayed in the Selection List */
                         onItemSelect={handleCaseSelect}
-                        filterable={false}
                     >
                         <Button 
                             rightIcon="caret-down"

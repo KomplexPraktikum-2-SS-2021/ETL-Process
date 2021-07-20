@@ -313,13 +313,48 @@ export function setText(start: string, end: string, case_id: string) {
     return text;
 }
 
-const filterCase: ItemPredicate<ICase> = (query: string, item: ICase) => {
-    if (item.case_id) {
+export const filterCase: ItemPredicate<ICase> = (query: string, item: ICase) => {
+    /*if (item.case_id) {
         return item.case_id.toLowerCase().indexOf(query.toLowerCase()) >= 0;
     } else {
-        // If there is no case_id, it will be filtered
         return false;
+    }*/
+    return (item.case_id.toLowerCase().indexOf(query.toLowerCase()) >= 0 || item.start.toLowerCase().indexOf(query.toLowerCase()) >= 0);
+}
+
+function escapeRegExpChars(text: string) {
+    return text.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+}
+
+const highlightText = (text: string, query: string) => {
+    let lastIndex = 0;
+    const words = query
+        .split(/\s+/)
+        .filter(word => word.length > 0)
+        .map(escapeRegExpChars);
+    if (words.length === 0) {
+        return [text];
     }
+    const regexp = new RegExp(words.join("|"), "gi");
+    const tokens: React.ReactNode[] = [];
+    while (true) {
+        const match = regexp.exec(text);
+        if (!match) {
+            break;
+        }
+        const length = match[0].length;
+        const before = text.slice(lastIndex, regexp.lastIndex - length);
+        if (before.length > 0) {
+            tokens.push(before);
+        }
+        lastIndex = regexp.lastIndex;
+        tokens.push(<strong key={lastIndex}>{match[0]}</strong>);
+    }
+    const rest = text.slice(lastIndex);
+    if (rest.length > 0) {
+        tokens.push(rest);
+    }
+    return tokens;
 }
 
 export const renderCase: ItemRenderer<ICase> = (item: ICase, itemProps: IItemRendererProps) => {
@@ -331,7 +366,7 @@ export const renderCase: ItemRenderer<ICase> = (item: ICase, itemProps: IItemRen
         <MenuItem
             key={item.case_id}
             onClick={itemProps.handleClick}
-            text={setText(item.start, item.end, item.case_id)}
+            text={highlightText(setText(item.start, item.end, item.case_id), itemProps.query)}
         />
     )
 };
