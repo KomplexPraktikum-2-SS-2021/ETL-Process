@@ -71,7 +71,7 @@ function changeArrow(change?: number) {
         return <>
             <Icon icon="arrow-right" style={{
                 transform: `rotate(${-Math.atan(change/100)}rad)`,
-                color: interpolateCividis(-Math.atan(change/100))
+                color: change > 0 ? '#d9822b' : '#137cbd'
             }}/>
         </>
     }
