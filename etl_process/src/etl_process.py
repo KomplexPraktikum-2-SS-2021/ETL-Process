@@ -24,6 +24,16 @@ class EtlProcess:
 
     # ------------------------------ Helper Methods ------------------------------ #
 
+
+    def _get_patient_cases(self, cases_df: pd.Series, patient_id: str):
+        patient_cases = []
+        # finding all patient relevant cases
+        for row_label, case_row in cases_df.iteritems():
+            if (case_row.patient_id == patient_id):
+                patient_cases.append(case_row)
+        
+        return patient_cases
+
     def _find_reference_id(self, resource_name: ResourceName, identifier) -> str:
         """
         Helper function which finds the id for a given identifier from a given resource.
@@ -54,8 +64,16 @@ class EtlProcess:
 
     def _load_patients(self):
         df = csv_loader.load_table('patients')
+        df_2 = csv_loader.load_table('cases')
         for row_label, row in df.iterrows():
-            fhir_element = self.object_creator.create_patient(row)
+
+            patient_cases = []
+            # finding all patient relevant cases
+            for row_label, case_row in df_2.iterrows():
+                if (case_row.patient_id == row.id):
+                    patient_cases.append(case_row)
+            
+            fhir_element = self.object_creator.create_patient(row, patient_cases)
             self.server.post_json(path=ResourceName.PATIENT.value, resource_json=fhir_element.as_json())
 
 
