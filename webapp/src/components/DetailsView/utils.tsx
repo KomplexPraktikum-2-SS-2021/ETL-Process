@@ -27,9 +27,9 @@ function createObservEntry(observ: Observation) {
     mapping_code_name.set('69990-0', 'AHI');
     mapping_code_name.set('90566-1', 'RDI');
     mapping_code_name.set('93832-4', 'Totale Schlafzeit');
-    mapping_code_name.set('418763003', 'PLM Index');
-    mapping_code_name.set('72863001', 'Schnarchzeit');
-    mapping_code_name.set('Schlaflatenz', 'Schlaflatenz');
+    mapping_code_name.set('custom::plmIndex', 'PLM Index');
+    mapping_code_name.set('custom::snoringTime', 'Schnarchzeit');
+    mapping_code_name.set('custom::sleepLatency', 'Schlaflatenz');
 
     return {name: mapping_code_name.get(getObsCode(observ)), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
 }
@@ -66,7 +66,7 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
             AHI = a_observ.value;
         } else if (a_observ.code === '90566-1') {
             RDI = a_observ.value;
-        } else if (a_observ.code === '72863001') {
+        } else if (a_observ.code === 'custom::snoringTime') {
             Schnarchzeit = a_observ.value;
         } else if (a_observ.code === '93832-4') {
             totaleSchlafzeit = a_observ.value;

@@ -48,15 +48,15 @@ class ObjectCreator:
         'AHI':                      ('69990-0', '{events}/h',   'Apnea hypopnea index 24 hour'),
         'RDI':                      ('90566-1', '{events}/h',   'Respiratory disturbance index'),
         # 'RDI / AHI (n/h)':          <--- This should be recomputed from RDI and AHI
-        # 'Arousal Index (n/h)':      <---- Drop this!
         # 'Schnarchen Total (%TST)':  <--- This should be recomputed from "totale Schlafzeit" and "Schnarchzeit"
         'totale Schlafzeit (min)':  ('93832-4', 'min',          'Sleep duration'),
     }
 
     _observation_custom_mapping_dict: Dict[str, Tuple[str, str, str]] = {
-        'Schlaflatenz (min)':       ('Schlaflatenz',     'min',          'Schlaflatenz'),
-        'PLM Index':                ('418763003', '{events}/h',          'PLM Index'),
-        'Schnarchzeit (min)':       ('72863001' ,        'min',          'Schnarchzeit'),
+        'Schlaflatenz (min)':       ('custom::sleepLatency',    'min',          'Schlaflatenz'),
+        'PLM Index':                ('custom::plmIndex',        '{events}/h',          'PLM Index'),
+        'Schnarchzeit (min)':       ('custom::snoringTime' ,    'min',          'Schnarchzeit'),
+        'Arousal Index (n/h)':      ('custom::arousalIndex' ,   '{events}/h',          'Arousal Index'),
     }
 
     _case_custom_mapping_dict: Dict[str, str] = {

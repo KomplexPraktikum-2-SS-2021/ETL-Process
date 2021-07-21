@@ -23,14 +23,15 @@ function computeObservationData(observationList: Observation[]) {
             observationList?.find(obs => obs.valueQuantity?.code === '90566-1')?.valueQuantity?.value,
             observationList?.find(obs => obs.valueQuantity?.code === '69990-0')?.valueQuantity?.value
         ),
-        Schlaflatenz: observationList?.find(obs => obs.valueQuantity?.code === 'Schlaflatenz')?.valueQuantity?.value,    
-        Schnarchzeit: observationList?.find(obs => obs.valueQuantity?.code === '72863001')?.valueQuantity?.value,    
+        Schlaflatenz: observationList?.find(obs => obs.valueQuantity?.code === 'custom::sleepLatency')?.valueQuantity?.value,    
+        Schnarchzeit: observationList?.find(obs => obs.valueQuantity?.code === 'custom::snoringTime')?.valueQuantity?.value,    
         totaleSchlafzeit: observationList?.find(obs => obs.valueQuantity?.code === '93832-4')?.valueQuantity?.value,    
         SchnarchenTotal: optionalCompute((a:number, b:number) => a/b*100.0, 
-            observationList?.find(obs => obs.valueQuantity?.code === '72863001')?.valueQuantity?.value,
+            observationList?.find(obs => obs.valueQuantity?.code === 'custom::snoringTime')?.valueQuantity?.value,
             observationList?.find(obs => obs.valueQuantity?.code === '93832-4')?.valueQuantity?.value
         ) ,    
-        PLMIndex: observationList?.find(obs => obs.valueQuantity?.code === '418763003')?.valueQuantity?.value
+        PLMIndex: observationList?.find(obs => obs.valueQuantity?.code === 'custom::plmIndex')?.valueQuantity?.value,
+        ArousalIndex: observationList?.find(obs => obs.valueQuantity?.code === 'custom::arousalIndex')?.valueQuantity?.value
     }
 }
 
@@ -117,6 +118,13 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                 </tr>
             </thead>
             <tbody>
+            <tr>
+                    <td>{'Arousal Index (n/h)'}</td>
+                    <td>{formatQuantityValue(lastObservationData.ArousalIndex)}</td>
+                    <td>{formatQuantityValue(currentObservationData.ArousalIndex)}</td>
+                    <td>{formatChange(dataChange.ArousalIndex)}</td>
+                    <td>{changeArrow(dataChange.ArousalIndex)}</td>
+                </tr>
                 <tr>
                     <td>{'Apnoe Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.ApnoeIndex)}</td>
@@ -139,21 +147,21 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                     <td>{changeArrow(dataChange.RERAIndex)}</td>
                 </tr>
                 <tr>
-                    <td>{'AHI'}</td>
+                    <td>{'AHI (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.AHI)}</td>
                     <td>{formatQuantityValue(currentObservationData.AHI)}</td>
                     <td>{formatChange(dataChange.AHI)}</td>
                     <td>{changeArrow(dataChange.AHI)}</td>
                 </tr>
                 <tr>
-                    <td>{'RDI'}</td>
+                    <td>{'RDI (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.RDI)}</td>
                     <td>{formatQuantityValue(currentObservationData.RDI)}</td>
                     <td>{formatChange(dataChange.RDI)}</td>
                     <td>{changeArrow(dataChange.RDI)}</td>
                 </tr>
                 <tr>
-                    <td>{'RDI / AHI (n/h)'}</td>
+                    <td>{'RDI / AHI (1)'}</td>
                     <td>{formatQuantityValue(lastObservationData.RDIpAHI)}</td>
                     <td>{formatQuantityValue(currentObservationData.RDIpAHI)}</td>
                     <td>{formatChange(dataChange.RDIpAHI)}</td>
@@ -188,7 +196,7 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                     <td>{changeArrow(dataChange.SchnarchenTotal)}</td>
                 </tr>
                 <tr>
-                    <td>{'PLM Index'}</td>
+                    <td>{'PLM Index (n/h)'}</td>
                     <td>{formatQuantityValue(lastObservationData.PLMIndex)}</td>
                     <td>{formatQuantityValue(currentObservationData.PLMIndex)}</td>
                     <td>{formatChange(dataChange.PLMIndex)}</td>
