@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from "react-router-dom";
 import { Bundle, Condition, Encounter, Observation, Patient, Procedure } from 'fhir/r4';
 import { oauth2 as SMART } from "fhirclient";
-import {Callout, Tab, Tabs} from '@blueprintjs/core'
+import {Callout, Divider, Tab, Tabs} from '@blueprintjs/core'
 import { DevelopmentTable } from 'components/DevelopmentTable';
 import { constructReferenceMap } from 'utils';
 import { DetailsView } from '../../components/DetailsView';
@@ -63,46 +63,50 @@ export const PatientView = () => {
             .catch( () => setState({...state, data: null, loading: false}))
     }, []);
 
-        return (
-            <div className="patient-view-container">
-                {
-                    state.loading ?
-                        <></> : 
-                    state.data === null ?
-                        <div style={{height: 100, marginTop: 80}}>
-                            <Callout intent="danger" title="Es ist ein Fehler aufgetreten!">
-                                Bitte überprüfen sie Ihre eingaben oder versuchen sie es später erneut.
-                            </Callout>
-                        </div>
-                         :
-                        <div className="patient-view">
-                            <h1>Patients View</h1>
-                            <AdminView 
-                                patient={state.data.patient}
-                            />
-                            <Tabs id="patient_view_selection" large={true} renderActiveTabPanelOnly={true} defaultSelectedTabId={"patient_view_details"} className={`patient-view-selection`}>
-                                <Tab id="patient_view_details" title="Detailinformationen" panel={<DetailsView 
-                                        encounters={state.data.encounters}
-                                        conditionMap={state.data.conditionMap}
-                                        observationMap={state.data.procedureObservationMapping}
-                                        procedures={state.data.procedures}
-                                    />}
-                                />
-                                <Tab id="patient_view_progress" title="Verlaufsinformationen" panel={<DevelopmentTable
-                                        encounters={state.data.encounters}
-                                        conditionMap={state.data.conditionMap}
-                                        observationMap={state.data.observationMap}
-                                        procedures={state.data.procedures}
-                                        procedureObservationMapping={state.data.procedureObservationMapping}
-                                    />}
-                                />
-                            </Tabs>
-                        </div>
+    const numberProcedures = state.data?.procedures.filter(proc => proc.performedDateTime !== undefined).length ?? 0;
 
-                }
-                
-            </div>
-        )
+    return (
+        <div className="patient-view-container">
+            {
+                state.loading ?
+                    <></> : 
+                state.data === null ?
+                    <div style={{height: 100, marginTop: 80}}>
+                        <Callout intent="danger" title="Es ist ein Fehler aufgetreten!">
+                            Bitte überprüfen sie Ihre eingaben oder versuchen sie es später erneut.
+                        </Callout>
+                    </div>
+                        :
+                    <div className="patient-view">
+                        <h1>Patients View</h1>
+                        <AdminView 
+                            patient={state.data.patient}
+                        />
+                        <Divider/>
+                        <Tabs id="patient_view_selection" large={true} renderActiveTabPanelOnly={true} defaultSelectedTabId={"patient_view_details"} className={`patient-view-selection`}>
+                            <Tab id="patient_view_details" title="Detailinformationen" panel={<DetailsView 
+                                    encounters={state.data.encounters}
+                                    conditionMap={state.data.conditionMap}
+                                    observationMap={state.data.procedureObservationMapping}
+                                    procedures={state.data.procedures}
+                                />}
+                            />
+                            <Tab id="patient_view_progress" title="Verlaufsinformationen" panel={<DevelopmentTable
+                                    encounters={state.data.encounters}
+                                    conditionMap={state.data.conditionMap}
+                                    observationMap={state.data.observationMap}
+                                    procedures={state.data.procedures}
+                                    procedureObservationMapping={state.data.procedureObservationMapping}
+                                />}
+                                disabled={numberProcedures < 2}
+                            />
+                        </Tabs>
+                    </div>
+
+            }
+            
+        </div>
+    )
 }
 
 
