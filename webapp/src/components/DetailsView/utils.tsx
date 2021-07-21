@@ -294,6 +294,25 @@ function getObsName(observ: Observation) {
 
 
 
+/**
+ * 
+ * also extern utility functions
+ */
+
+export const convertToGermanDateFormat = (date: string) => {
+    const new_date = new Date(date)
+    let month :string = new_date.getMonth().toString()
+    let day :string = new_date.getDay().toString()
+    if (Number(month) < 10) {
+        month = '0' + month
+    }
+    if (Number(day) < 10) {
+        day = '0' + day
+    }
+
+    return `${new_date.toLocaleDateString('de')}`
+}
+
 
 
 /**
@@ -303,12 +322,12 @@ function getObsName(observ: Observation) {
 export function setText(start: string, end: string, case_id: string) {
 
     let text = "";
-    const spaces = 2;
+    const spaces = 4;
 
     if (end === "") {
-        text = `${getDateTime(start)} - ...` + `( ${case_id} )`;
+        text = `${convertToGermanDateFormat(start)}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `...` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
     } else {
-        text = `${getDateTime(start)}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `${getDateTime(end)}` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
+        text = `${convertToGermanDateFormat(start)}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `${convertToGermanDateFormat(end)}` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
     }
     return text;
 }

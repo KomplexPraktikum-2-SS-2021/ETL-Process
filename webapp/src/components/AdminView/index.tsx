@@ -1,5 +1,6 @@
 import './index.css';
 import { Patient, HumanName } from 'fhir/r4';
+import { convertToGermanDateFormat } from 'components/DetailsView/utils';
 
 
 /**
@@ -124,7 +125,6 @@ export const AdminView = ({patient}: AdminViewProps) => {
             return "";
         }
     }
-    console.log("Follow-up: ", getExtension());
 
     const getAddress = () => {
         if (patient.address) {
@@ -164,7 +164,7 @@ export const AdminView = ({patient}: AdminViewProps) => {
 
     const getBirthdate = () => {
         if (patient.birthDate) {
-            return patient.birthDate
+            return convertToGermanDateFormat(patient.birthDate);
         }
     }
 
