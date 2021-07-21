@@ -77,8 +77,7 @@ export const PatientOverview = () => {
 
     return (
         <div className="PatientOverview-container">
-            {/* {state.loading ? <Spinner/> : null} */}
-            {/* <PatientSearchForm searchParameter={state.searchParameter} onSearchReload={x => console.log(x)}/> */}
+            <h1>Patientenübersicht</h1>
             <FormGroup
                 // helperText="Helper text with details..."
                 labelFor="text-input"

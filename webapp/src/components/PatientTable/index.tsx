@@ -1,7 +1,7 @@
 import { Classes } from '@blueprintjs/core';
 import { Condition, Encounter, Patient } from 'fhir/r4';
 import './index.scss';
-import { getResourcePath, arrayMax, calculateAge, levenshteinDistance } from 'utils/index';
+import { getResourcePath, arrayMax, calculateAge, levenshteinDistance, transformIntoGenderSymbol } from 'utils/index';
 import { useHistory } from 'react-router-dom';
 
 interface PatientTableProps {
@@ -74,10 +74,10 @@ export const PatientTable = (props: PatientTableProps) => {
                                     <td>{patient.identifier?.[0].value ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].family ?? EMPTY_CELL_STR}</td>
                                     <td>{patient.name?.[0].given?.join(' ') ?? EMPTY_CELL_STR}</td>
-                                    <td>{patient.gender ?? EMPTY_CELL_STR}</td>
+                                    <td>{transformIntoGenderSymbol(patient.gender) ?? EMPTY_CELL_STR}</td>
                                     <td>{toBirtdateAgeStr(patient.birthDate) ?? EMPTY_CELL_STR}</td>
                                     <td>{mostRecentCondition?.code?.coding?.[0].display ?? EMPTY_CELL_STR}</td>
-                                    <td>{new String(isActive)}</td>
+                                    <td>{isActive ? 'aktiv' : 'inaktiv'}</td>
                                 </tr>
                             )}) :
                         (

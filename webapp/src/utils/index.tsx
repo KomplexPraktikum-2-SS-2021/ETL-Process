@@ -120,3 +120,36 @@ export function optionalCompute<T extends unknown[], S>(fun: (...inp: [...T]) =>
 
 
 
+/**
+ * returns the respective gender symbol as svg
+ * @param gender of a patient 
+ */
+ export const transformIntoGenderSymbol = (gender?: string) => {
+    
+    const svg_width = "20";
+    const svg_height = "20";
+    const male_color = "#137cbd";
+    const female_color = "#db3737";
+
+    if (gender === "male") {
+        return (
+            <svg width={svg_width} height={svg_height} viewBox="0 15 30 10">
+                <circle cx="15" cy="25" r="8"  stroke={male_color} strokeWidth="3" fill="none" />
+                <line x1="19" x2="26" y1="17" y2="10" strokeWidth="3" stroke={male_color} />
+                <line x1="27" x2="16" y1="9" y2="11" strokeWidth="3" stroke={male_color} />
+                <line x1="27" x2="27" y1="9" y2="19" strokeWidth="3" stroke={male_color} />
+            </svg>
+        )
+    } else if (gender === "female") {
+        return (
+            <svg width={svg_width} height={svg_height} viewBox="0 15 30 10">
+                <circle cx="15" cy="15" r="8"  stroke={female_color} strokeWidth="3" fill="none" />
+                <line x1="15" x2="15" y1="23" y2="33" strokeWidth="3" stroke={female_color} />
+                <line x1="10" x2="20" y1="28" y2="28" strokeWidth="3" stroke={female_color} />
+            </svg>
+        )
+    } else {
+        console.log("gender is undefined");
+        return null
+    }
+}
