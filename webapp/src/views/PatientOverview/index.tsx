@@ -12,7 +12,7 @@ import { binaryChainReferenceMaps, constructReferenceMap, DefaultMap } from 'uti
  * This method fetches the fhir data needed to display the patient overview.
  * It returns an tuple of (1) The list of all patients (2) a map relating a patient (by id) to all his diagnoses
  */
-async function getData(onlyActive: boolean, patientIdSearch: string, lastName: string): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
+async function getData(onlyActive: boolean, patientIdSearch: string, lastName: string, firstName: string): Promise<[Patient[], Map<string, Condition[]>, Map<string,Encounter[]>]> {
 
     const onlyActiveQuery = onlyActive ? '_has:Encounter:subject:status=in-progress' : ''
     const client = await SMART.ready();
@@ -24,6 +24,7 @@ async function getData(onlyActive: boolean, patientIdSearch: string, lastName: s
     let patients = bundle_resources.filter(res => res?.resourceType == 'Patient') as Patient[];
     patients = patients.filter(pat => pat.identifier?.[0].value?.startsWith(patientIdSearch));
     patients = patients.filter(pat => pat.name?.[0].family?.startsWith(lastName));
+    patients = patients.filter(pat => pat.name?.[0].given?.join(' ').startsWith(firstName));
 
     const conditions = bundle_resources.filter(res => res?.resourceType == 'Condition') as Condition[];
     const encounters = bundle_resources.filter(res => res?.resourceType == 'Encounter') as Encounter[];
@@ -59,7 +60,7 @@ export const PatientOverview = () => {
 
     useEffect(() => {
         if(state.loading !== LOAD_STATE.finished) {
-            getData(state.onlyActive, state.patientIdSearch, state.lastName)
+            getData(state.onlyActive, state.patientIdSearch, state.lastName, state.firstName)
             .then(([patients, conditions, encounterMap]) => setState({...state, patients, conditions, encounterMap, loading: LOAD_STATE.finished}))
         } 
     }, [state.loading])
@@ -73,7 +74,7 @@ export const PatientOverview = () => {
             }, 400)
         
             return () => clearTimeout(delayDebounceFn)
-        }}, [state.patientIdSearch, state.lastName])
+        }}, [state.patientIdSearch, state.lastName, state.firstName])
 
     return (
         <div className="PatientOverview-container">
@@ -86,7 +87,7 @@ export const PatientOverview = () => {
                 <ControlGroup fill={true} vertical={false}>
                     <InputGroup placeholder="Patienten ID..." onChange={event => setState({...state, patientIdSearch: event.target.value})}/>
                     <InputGroup placeholder="Nachname..." onChange={event => setState({...state, lastName: event.target.value})}/>
-                    <InputGroup placeholder="Vorname..." />
+                    <InputGroup placeholder="Vorname..." onChange={event => setState({...state, firstName: event.target.value})}/>
                     {/* <Button icon="search"></Button> */}
                 </ControlGroup>
                 <Switch 
