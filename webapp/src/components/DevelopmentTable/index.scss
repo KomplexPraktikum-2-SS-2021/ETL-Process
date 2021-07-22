@@ -13,6 +13,15 @@ $table-background-dark: #394b59;
      background-color: $table-background-light;
      color: black;
      text-align: right;
+
+     .DevelopmentTable-lastDiagnoseRow {
+         .bp3-dark & {
+            background-color: #4c5c68 !important;
+         }
+         background-color: #b7c0ce !important;
+         transition: none !important;
+
+     }
  
      tbody {
          display: table-row-group;
@@ -87,7 +96,7 @@ $table-background-dark: #394b59;
     /* padding: 3px; */
     border-radius: 10px;
     margin-top: 30px;
-    width: 70%;
+    margin-bottom: 45px;
 
 }
 

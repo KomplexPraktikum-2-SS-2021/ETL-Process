@@ -1,6 +1,6 @@
 import { Condition, Encounter, Observation, Procedure } from "fhir/r4";
 import './index.scss';
-import { getResourcePath, optionalCompute } from 'utils/index'
+import { arrayMax, getResourcePath, optionalCompute } from 'utils/index'
 import { Icon } from "@blueprintjs/core";
 import { interpolateCividis } from "d3-scale-chromatic";
 
@@ -79,6 +79,7 @@ function changeArrow(change?: number) {
 
 
 const dateTimeStrCompare = (dts1: string, dts2: string) => Date.parse(dts2) - Date.parse(dts1);
+const sortCriterion = (crit: 'start'|'end') => (e1: Encounter, e2: Encounter) => Date.parse(e1.period?.[crit]??'')-Date.parse(e2.period?.[crit]??''); 
 
 export const DevelopmentTable = (props: DevelopmentTableProps) => {
 
@@ -106,6 +107,39 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
     const dataChange = computeChange(currentObservationData, lastObservationData)
     console.log(dataChange)
 
+
+    // Compute most recent diagnoses
+    // const activeEncounters = props.encounters
+    //     ?.filter(enc => enc.status === 'in-progress') ?? [];
+
+    // let isActive = false;
+    // let mostRecentEncounter: Encounter|undefined;
+    // if(activeEncounters.length > 1) {
+    //     console.warn(`Patient has multiple active cases!`)
+    //     mostRecentEncounter = arrayMax(activeEncounters, sortCriterion('start'));
+    //     isActive = true;
+    // } else if(activeEncounters.length == 1) {
+    //     mostRecentEncounter = activeEncounters[0];
+    //     isActive = true;
+    // } else if(activeEncounters.length == 0) {
+    //     mostRecentEncounter = arrayMax(props.encounters, sortCriterion('end'));
+    //     isActive = false;
+    // }
+
+    // const conditions = mostRecentEncounter ? props.conditionMap.get(getResourcePath(mostRecentEncounter)??'') : undefined;
+    // let mostRecentCondition = conditions?.find(cond => cond.note?.[0].text === 'discharge') ??
+    //     conditions?.find(cond => cond.note?.[0].text === 'admission');
+
+    // console.log() 
+
+    const conditionsForLastProcedure =  props.conditionMap.get(lastProcedure.encounter?.reference ?? '');
+    const mostRecentConditionForLastProcedure = conditionsForLastProcedure?.find(cond => cond.note?.[0].text === 'discharge') ?? 
+        conditionsForLastProcedure?.find(cond => cond.note?.[0].text === 'admission');
+
+    const conditionsForCurrentProcedure =  props.conditionMap.get(currentProcedure.encounter?.reference ?? '');
+    const mostRecentConditionForCurrentProcedure = conditionsForCurrentProcedure?.find(cond => cond.note?.[0].text === 'discharge') ?? 
+        conditionsForCurrentProcedure?.find(cond => cond.note?.[0].text === 'admission');
+
     return (
         <>
             <h2>Verlaufsinformationen</h2>
@@ -121,7 +155,15 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
                         </tr>
                     </thead>
                     <tbody>
-                    <tr>
+                        <tr className="DevelopmentTable-lastDiagnoseRow">
+                            <td>{'Letzte Diagnose'}</td>
+                            <td>{mostRecentConditionForLastProcedure?.code?.coding?.[0].display ?? '---'}</td>
+                            <td>{mostRecentConditionForCurrentProcedure?.code?.coding?.[0].display ?? '---'}</td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+
+                        <tr>
                             <td>{'Arousal Index (n/h)'}</td>
                             <td>{formatQuantityValue(lastObservationData.ArousalIndex)}</td>
                             <td>{formatQuantityValue(currentObservationData.ArousalIndex)}</td>
