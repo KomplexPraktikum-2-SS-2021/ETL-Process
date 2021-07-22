@@ -104,7 +104,7 @@ export const PolySomnoView = ({
                 <TableRow attrib_1_title={observations[8].name} attrib_1_value={observations[8].value.toString()} attrib_1_unit={observations[8].unit}
                             attrib_2_title={observations[9].name} attrib_2_value={observations[9].value.toString()} attrib_2_unit={observations[9].unit}/>
                 <TableRow attrib_1_title={observations[10].name} attrib_1_value={observations[10].value.toString()} attrib_1_unit={observations[10].unit}
-                            attrib_2_title="" attrib_2_value="" attrib_2_unit=""/>
+                            attrib_2_title={observations[11].name} attrib_2_value={observations[11].value.toString()} attrib_2_unit={observations[11].unit}/>
             </table>
         )
     } else {

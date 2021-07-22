@@ -30,6 +30,7 @@ function createObservEntry(observ: Observation) {
     mapping_code_name.set('custom::plmIndex', 'PLM Index');
     mapping_code_name.set('custom::snoringTime', 'Schnarchzeit');
     mapping_code_name.set('custom::sleepLatency', 'Schlaflatenz');
+    mapping_code_name.set('custom::arousalIndex', 'Arousal Index');
 
     return {name: mapping_code_name.get(getObsCode(observ)), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
 }
