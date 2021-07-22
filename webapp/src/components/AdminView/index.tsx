@@ -1,43 +1,9 @@
 import './index.css';
 import { Patient, HumanName } from 'fhir/r4';
 import { convertToGermanDateFormat } from 'components/DetailsView/utils';
+import { transformIntoGenderSymbol } from 'utils';
 
 
-/**
- * returns the respective gender symbol as svg
- * @param gender of a patient 
- */
- export const transformIntoGenderSymbol = (gender?: string) => {
-    
-    const svg_width = "20";
-    const svg_height = "20";
-    const male_color = "blue";
-    const female_color = "#c00";
-
-    if (gender === "male") {
-        return (
-            <svg width={svg_width} height={svg_height} viewBox="0 15 30 10">
-                <circle cx="15" cy="25" r="8"  stroke={male_color} strokeWidth="2" fill="none" />
-                <line x1="19" x2="26" y1="17" y2="10" strokeWidth="2" stroke={male_color} />
-                <line x1="27" x2="16" y1="9" y2="11" strokeWidth="2" stroke={male_color} />
-                <line x1="27" x2="27" y1="9" y2="19" strokeWidth="2" stroke={male_color} />
-            </svg>
-        )
-    } else if (gender === "female") {
-        return (
-            <svg width={svg_width} height={svg_height} viewBox="0 15 30 10">
-                <circle cx="15" cy="15" r="8"  stroke={female_color} strokeWidth="2" fill="none" />
-                <line x1="15" x2="15" y1="23" y2="33" strokeWidth="2" stroke={female_color} />
-                <line x1="10" x2="20" y1="28" y2="28" strokeWidth="2" stroke={female_color} />
-            </svg>
-        )
-    } else {
-        console.log("gender is undefined");
-        return (
-            null
-        )
-    }
-}
 
 /*
 const DataCol = (props: ColProps) => {

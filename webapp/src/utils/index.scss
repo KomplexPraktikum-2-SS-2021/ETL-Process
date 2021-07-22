@@ -1,0 +1,19 @@
+$color_dark: rgb(44, 44, 44);
+$color_light: rgb(224, 224, 224);
+
+.GenderIcon {
+    circle {
+        stroke: $color_dark;
+        .bp3-dark & {
+            stroke: $color_light;
+        }
+    }
+
+    line {
+        stroke: $color_dark;
+        .bp3-dark & {
+            stroke: $color_light;
+        }
+    }
+
+}

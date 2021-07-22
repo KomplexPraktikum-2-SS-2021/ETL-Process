@@ -35,8 +35,8 @@ export const PatientTable = (props: PatientTableProps) => {
                     <tr>
                         <th>Patienten ID</th>
                         <th>Nachname</th>
-                        <th>Vorame</th>
-                        <th>Geschlect</th>
+                        <th>Vorname</th>
+                        <th>Geschlecht</th>
                         <th>Geburtstag (+Alter)</th>
                         <th>Letzte Diagnose</th>
                         <th>Status</th>

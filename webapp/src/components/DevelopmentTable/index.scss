@@ -1,5 +1,99 @@
+@import "~@blueprintjs/core/lib/scss/variables";
+
+$table-background-light: whitesmoke;
+$table-background-dark: #394b59;
+
 .DevelopmentTable-table {
-    thead {
-        background-color: gray !important;
-    }
+    width: 100%;
+
+     /* box-shadow: #000000 2px; */
+     border-collapse: collapse;
+     border-radius: 10px;
+     /* padding: 10px; */
+     background-color: $table-background-light;
+     color: black;
+     text-align: right;
+ 
+     tbody {
+         display: table-row-group;
+     }
+ 
+     th {
+         border-left:solid black 1px;
+         padding: 6px;
+ 
+         border-top: none;
+         background-color: #5d6470;
+         color: whitesmoke;
+ 
+         &:first-child{
+             border-radius: 10px 0 0 0 ;
+             border-left: none;
+ 
+         }
+ 
+         &:last-child {
+             border-radius: 0 10px 0 0;
+             border-left: none;
+         }
+     }
+ 
+     td {
+         border-left:solid black 1px;
+         border-top:solid black 1px;
+         padding: 6px;
+ 
+         &:first-child, &:first-child {
+             border-left: none;
+             text-align: left;
+         }
+
+         &:last-child {
+            border-left: none;
+        }
+     }
+ 
+ 
+     tr {
+         transition: background-color .3s ease-in-out !important;
+         
+         
+         .bp3-dark &:hover {
+             background-color: lighten($color: $table-background-dark, $amount: 20);
+             
+         }
+         
+         &:hover {
+             background-color: darken($color: $table-background-light, $amount: 20);
+             box-shadow: 0px 0px 5px rgba(91, 101, 145, 0.5);
+             transform: scale(1);
+         }
+         
+         &:first-child {
+             // padding-left: 3px;
+             transform: none;
+             box-shadow: none;
+         }
+     }
 }
+
+.bp3-dark .DevelopmentTable-table {
+    background-color: #394b59;
+    color: white;
+}
+
+.DevelopmentTable-container {
+    box-shadow: rgba(16,22,26,.2) 0 0 0 1px,rgba(16,22,26,.4) 0 1px 1px,rgba(16,22,26,.4) 0 2px 6px ;
+    /* padding: 3px; */
+    border-radius: 10px;
+    margin-top: 30px;
+    width: 70%;
+
+}
+
+.bp3-dark table, .bp3-dark td, .bp3-dark th {
+    border-color: #1f2930;
+}
+
+
+

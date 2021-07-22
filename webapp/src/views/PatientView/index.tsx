@@ -78,7 +78,7 @@ export const PatientView = () => {
                     </div>
                         :
                     <div className="patient-view">
-                        <h1>Patients View</h1>
+                        <h1>Patientenansicht</h1>
                         <AdminView 
                             patient={state.data.patient}
                         />

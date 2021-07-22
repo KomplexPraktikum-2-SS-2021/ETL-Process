@@ -107,103 +107,108 @@ export const DevelopmentTable = (props: DevelopmentTableProps) => {
     console.log(dataChange)
 
     return (
-        <table className="DevelopmentTable-table">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Letzter Wert<br/>{new Date(lastProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
-                    <th>Aktueller Wert<br/>{new Date(currentProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
-                    <th>Entwicklung</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-            <tr>
-                    <td>{'Arousal Index (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.ArousalIndex)}</td>
-                    <td>{formatQuantityValue(currentObservationData.ArousalIndex)}</td>
-                    <td>{formatChange(dataChange.ArousalIndex)}</td>
-                    <td>{changeArrow(dataChange.ArousalIndex)}</td>
-                </tr>
-                <tr>
-                    <td>{'Apnoe Index (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.ApnoeIndex)}</td>
-                    <td>{formatQuantityValue(currentObservationData.ApnoeIndex)}</td>
-                    <td>{formatChange(dataChange.ApnoeIndex)}</td>
-                    <td>{changeArrow(dataChange.ApnoeIndex)}</td>
-                </tr>
-                <tr>
-                    <td>{'Hypnopnoe Index (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.HypnopnoeIndex)}</td>
-                    <td>{formatQuantityValue(currentObservationData.HypnopnoeIndex)}</td>
-                    <td>{formatChange(dataChange.HypnopnoeIndex)}</td>
-                    <td>{changeArrow(dataChange.HypnopnoeIndex)}</td>
-                </tr>
-                <tr>
-                    <td>{'RERA Index (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.RERAIndex)}</td>
-                    <td>{formatQuantityValue(currentObservationData.RERAIndex)}</td>
-                    <td>{formatChange(dataChange.RERAIndex)}</td>
-                    <td>{changeArrow(dataChange.RERAIndex)}</td>
-                </tr>
-                <tr>
-                    <td>{'AHI (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.AHI)}</td>
-                    <td>{formatQuantityValue(currentObservationData.AHI)}</td>
-                    <td>{formatChange(dataChange.AHI)}</td>
-                    <td>{changeArrow(dataChange.AHI)}</td>
-                </tr>
-                <tr>
-                    <td>{'RDI (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.RDI)}</td>
-                    <td>{formatQuantityValue(currentObservationData.RDI)}</td>
-                    <td>{formatChange(dataChange.RDI)}</td>
-                    <td>{changeArrow(dataChange.RDI)}</td>
-                </tr>
-                <tr>
-                    <td>{'RDI / AHI (1)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.RDIpAHI)}</td>
-                    <td>{formatQuantityValue(currentObservationData.RDIpAHI)}</td>
-                    <td>{formatChange(dataChange.RDIpAHI)}</td>
-                    <td>{changeArrow(dataChange.RDIpAHI)}</td>
-                </tr>
-                <tr>
-                    <td>{'Schlaflatenz (min)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.Schlaflatenz)}</td>
-                    <td>{formatQuantityValue(currentObservationData.Schlaflatenz)}</td>
-                    <td>{formatChange(dataChange.Schlaflatenz)}</td>
-                    <td>{changeArrow(dataChange.Schlaflatenz)}</td>
-                </tr>
-                <tr>
-                    <td>{'Schnarchzeit (min)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.Schnarchzeit)}</td>
-                    <td>{formatQuantityValue(currentObservationData.Schnarchzeit)}</td>
-                    <td>{formatChange(dataChange.Schnarchzeit)}</td>
-                    <td>{changeArrow(dataChange.Schnarchzeit)}</td>
-                </tr>
-                <tr>
-                    <td>{'totale Schlafzeit (min)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.totaleSchlafzeit)}</td>
-                    <td>{formatQuantityValue(currentObservationData.totaleSchlafzeit)}</td>
-                    <td>{formatChange(dataChange.totaleSchlafzeit)}</td>
-                    <td>{changeArrow(dataChange.totaleSchlafzeit)}</td>
-                </tr>
-                <tr>
-                    <td>{'Schnarchen Total (%TST)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.SchnarchenTotal)}</td>
-                    <td>{formatQuantityValue(currentObservationData.SchnarchenTotal)}</td>
-                    <td>{formatChange(dataChange.SchnarchenTotal)}</td>
-                    <td>{changeArrow(dataChange.SchnarchenTotal)}</td>
-                </tr>
-                <tr>
-                    <td>{'PLM Index (n/h)'}</td>
-                    <td>{formatQuantityValue(lastObservationData.PLMIndex)}</td>
-                    <td>{formatQuantityValue(currentObservationData.PLMIndex)}</td>
-                    <td>{formatChange(dataChange.PLMIndex)}</td>
-                    <td>{changeArrow(dataChange.PLMIndex)}</td>
-                </tr>
-            </tbody>
-        </table>
+        <>
+            <h2>Verlaufsinformationen</h2>
+            <div className="DevelopmentTable-container">
+                <table className="DevelopmentTable-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Letzter Wert<br/>{new Date(lastProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
+                            <th>Aktueller Wert<br/>{new Date(currentProcedure.performedDateTime ?? '').toLocaleDateString('de')}</th>
+                            <th>Entwicklung</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                            <td>{'Arousal Index (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.ArousalIndex)}</td>
+                            <td>{formatQuantityValue(currentObservationData.ArousalIndex)}</td>
+                            <td>{formatChange(dataChange.ArousalIndex)}</td>
+                            <td>{changeArrow(dataChange.ArousalIndex)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'Apnoe Index (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.ApnoeIndex)}</td>
+                            <td>{formatQuantityValue(currentObservationData.ApnoeIndex)}</td>
+                            <td>{formatChange(dataChange.ApnoeIndex)}</td>
+                            <td>{changeArrow(dataChange.ApnoeIndex)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'Hypnopnoe Index (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.HypnopnoeIndex)}</td>
+                            <td>{formatQuantityValue(currentObservationData.HypnopnoeIndex)}</td>
+                            <td>{formatChange(dataChange.HypnopnoeIndex)}</td>
+                            <td>{changeArrow(dataChange.HypnopnoeIndex)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'RERA Index (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.RERAIndex)}</td>
+                            <td>{formatQuantityValue(currentObservationData.RERAIndex)}</td>
+                            <td>{formatChange(dataChange.RERAIndex)}</td>
+                            <td>{changeArrow(dataChange.RERAIndex)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'AHI (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.AHI)}</td>
+                            <td>{formatQuantityValue(currentObservationData.AHI)}</td>
+                            <td>{formatChange(dataChange.AHI)}</td>
+                            <td>{changeArrow(dataChange.AHI)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'RDI (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.RDI)}</td>
+                            <td>{formatQuantityValue(currentObservationData.RDI)}</td>
+                            <td>{formatChange(dataChange.RDI)}</td>
+                            <td>{changeArrow(dataChange.RDI)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'RDI / AHI (1)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.RDIpAHI)}</td>
+                            <td>{formatQuantityValue(currentObservationData.RDIpAHI)}</td>
+                            <td>{formatChange(dataChange.RDIpAHI)}</td>
+                            <td>{changeArrow(dataChange.RDIpAHI)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'Schlaflatenz (min)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.Schlaflatenz)}</td>
+                            <td>{formatQuantityValue(currentObservationData.Schlaflatenz)}</td>
+                            <td>{formatChange(dataChange.Schlaflatenz)}</td>
+                            <td>{changeArrow(dataChange.Schlaflatenz)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'Schnarchzeit (min)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.Schnarchzeit)}</td>
+                            <td>{formatQuantityValue(currentObservationData.Schnarchzeit)}</td>
+                            <td>{formatChange(dataChange.Schnarchzeit)}</td>
+                            <td>{changeArrow(dataChange.Schnarchzeit)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'totale Schlafzeit (min)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.totaleSchlafzeit)}</td>
+                            <td>{formatQuantityValue(currentObservationData.totaleSchlafzeit)}</td>
+                            <td>{formatChange(dataChange.totaleSchlafzeit)}</td>
+                            <td>{changeArrow(dataChange.totaleSchlafzeit)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'Schnarchen Total (%TST)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.SchnarchenTotal)}</td>
+                            <td>{formatQuantityValue(currentObservationData.SchnarchenTotal)}</td>
+                            <td>{formatChange(dataChange.SchnarchenTotal)}</td>
+                            <td>{changeArrow(dataChange.SchnarchenTotal)}</td>
+                        </tr>
+                        <tr>
+                            <td>{'PLM Index (n/h)'}</td>
+                            <td>{formatQuantityValue(lastObservationData.PLMIndex)}</td>
+                            <td>{formatQuantityValue(currentObservationData.PLMIndex)}</td>
+                            <td>{formatChange(dataChange.PLMIndex)}</td>
+                            <td>{changeArrow(dataChange.PLMIndex)}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </>
     )
 }
 
