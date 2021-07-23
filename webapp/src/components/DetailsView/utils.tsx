@@ -89,7 +89,7 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
 export function getStart(enc: Encounter) {
     if (enc.period) {
         if (enc.period.start) {
-            const start = enc.period.start;
+            const start = convertToGermanDateFormat(enc.period.start);
             return start;
         } else {
             return "No Start Period exists";
@@ -103,7 +103,7 @@ export function getEnd(enc: Encounter) {
     if (enc.period) {
         if (enc.period) {
             if (enc.period.end) {
-                const end = enc.period.end;
+                const end = convertToGermanDateFormat(enc.period.end);
                 return end;
             } else {
                 return "";
@@ -326,9 +326,9 @@ export function setText(start: string, end: string, case_id: string) {
     const spaces = 4;
 
     if (end === "") {
-        text = `${convertToGermanDateFormat(start)}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `...` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
+        text = `${start}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `...` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
     } else {
-        text = `${convertToGermanDateFormat(start)}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `${convertToGermanDateFormat(end)}` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
+        text = `${start}` + Array(spaces).fill('\xa0').join('') + "-" + Array(spaces).fill('\xa0').join('') + `${end}` + Array(spaces).fill('\xa0').join('') + `( ${case_id} )`;
     }
     return text;
 }
