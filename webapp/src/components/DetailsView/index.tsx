@@ -197,12 +197,12 @@ export const DetailsView = ({
                         />
                     </CaseSelect>
                 </div>
-                <h3>Diagnose</h3>
+                <h3 className={`section-beginning`}>Diagnose</h3>
                 <DiagnosisRow
                     diag_admission={diag.admission}
                     diag_discharge={diag.discharge}
                 />
-                <h3>Polysomnographie Befunde</h3>
+                <h3 className={`section-beginning`}>Polysomnographie Befunde</h3>
                 <div className={`details-view__label-selection-element`}>
                     <Label text="Befund"/>
                     <ProcSelect

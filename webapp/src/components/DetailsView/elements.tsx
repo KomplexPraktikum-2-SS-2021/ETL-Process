@@ -11,22 +11,21 @@ export const DiagnosisRow = ({
     return (
         <div className={`details-view__diag-row`}>
             <b>Aufnahme:</b>
+            <div className={`diag-entry`}>
                 {
                     diag_admission? (
-                        <div>
-                            {diag_admission.name + " (" + diag_admission.code + ")"}
-                        </div>
-
+                        diag_admission.name + " (" + diag_admission.code + ")"
                     ) : null
                 }
+            </div>
             <b>Entlassung:</b>
+            <div className={`diag-entry`}>
                 {
                     diag_discharge? (
-                        <div>
-                            {diag_discharge.name + " (" + diag_discharge.code + ")"}
-                        </div>
+                        diag_discharge.name + " (" + diag_discharge.code + ")"
                     ) : null
                 }
+            </div>
         </div>
     )
 }
@@ -44,7 +43,7 @@ const TableRow = ({
         <tr className={`poly-data-table-tr`}>
             <td className={`poly-data-table-td poly-data-other poly-data-title`}>{attrib_1_title}</td>
             <td className={`poly-data-table-td poly-data-value`}>{attrib_1_value}</td>
-            <td className={`poly-data-table-td poly-data-other`}>{attrib_1_unit}</td>
+            <td className={`poly-data-table-td poly-data-other spacer`}>{attrib_1_unit}</td>
             <td className={`poly-data-table-td poly-data-other poly-data-title`}>{attrib_2_title}</td>
             <td className={`poly-data-table-td poly-data-value`}>{attrib_2_value}</td>
             <td className={`poly-data-table-td poly-data-other`}>{attrib_2_unit}</td>
