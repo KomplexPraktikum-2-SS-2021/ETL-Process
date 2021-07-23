@@ -179,6 +179,14 @@ export const DetailsView = ({
             setProc(a_proc);
     }, [], )
 
+    function moreThanOneProcedures(){
+        if (m_procedures.length > 1) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     return (
         <div className={`details-view-container`}>
             <h2>Detailinformationen</h2>
@@ -203,25 +211,33 @@ export const DetailsView = ({
                     diag_discharge={diag.discharge}
                 />
                 <h3 className={`section-beginning`}>Polysomnographie Befunde</h3>
-                <div className={`details-view__label-selection-element`}>
-                    <Label text="Befund"/>
-                    <ProcSelect
-                        items={proc_list}
-                        itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
-                        onItemSelect={handleProcSelect}
-                        filterable={false}
-                    >
-                        <Button 
-                            rightIcon="caret-down"
-                            text={selected_proc ? "( " + selected_proc.proc_id + " )" : "No Selection"}
-                        />
-                    </ProcSelect>
-                </div>
                 {
-                    isPolyDataAvailable() ? (
-                        null
+                    selected_proc? (
+                        <> 
+                            <div className={`details-view__label-selection-element`}>
+                                <Label text="Befund"/>
+                                {
+                                    moreThanOneProcedures()? (
+                                        <ProcSelect
+                                            items={proc_list}
+                                            itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
+                                            onItemSelect={handleProcSelect}
+                                            filterable={false}
+                                        >
+                                            <Button 
+                                                rightIcon="caret-down"
+                                                text={selected_proc ? "( " + selected_proc.proc_id + " )" : "No Selection"}
+                                            />
+                                        </ProcSelect>
+                                    ) : (
+                                        <div className={`details-view__no-list-div`}>{"( " + selected_proc.proc_id + " )"}</div>
+                                    )
+                                }
+                            </div>
+                            <PolySomnoView observations={poly_somno_data}/>
+                        </>
                     ) : (
-                        <PolySomnoView observations={poly_somno_data}/>
+                        <div> keine Befunde verfügbar </div>
                     )
                 }
             </div>
