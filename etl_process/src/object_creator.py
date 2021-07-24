@@ -294,7 +294,10 @@ class ObjectCreator:
             coding.display = ''
             return None
         else:
-            coding.display = ObjectCreator._condition_description_dict[cond_code]
+            if cond_code in ObjectCreator._condition_description_dict.keys():
+                coding.display = ObjectCreator._condition_description_dict[cond_code]
+            else:
+                coding.display = cond_code
 
         code = CodeableConcept()
         code.coding = [coding]

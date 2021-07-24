@@ -1,5 +1,14 @@
 import { IDiag, IObservEntry } from './utils'
 
+const setDiagText = (name: string, code: string) => {
+    if (name !== code) {
+        return name + " (" + code + ")"
+    } else {
+        return code
+    }
+}
+
+
 export const DiagnosisRow = ({
     diag_admission,
     diag_discharge
@@ -14,7 +23,7 @@ export const DiagnosisRow = ({
             <div className={`diag-entry`}>
                 {
                     diag_admission? (
-                        diag_admission.name + " (" + diag_admission.code + ")"
+                        setDiagText(diag_admission.name, diag_admission.code)
                     ) : null
                 }
             </div>
@@ -22,7 +31,7 @@ export const DiagnosisRow = ({
             <div className={`diag-entry`}>
                 {
                     diag_discharge? (
-                        diag_discharge.name + " (" + diag_discharge.code + ")"
+                        setDiagText(diag_discharge.name, diag_discharge.code)
                     ) : null
                 }
             </div>
