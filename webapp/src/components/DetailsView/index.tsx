@@ -8,7 +8,7 @@ import { Button } from '@blueprintjs/core';
 import { ICase, IDiag, IObserv, IObservEntry, IProc,
         renderCase, filterCase, renderProc,
         getStart, getEnd, getCaseId, setText, getType, getDiagCode, getDiagName, getFhirCaseId, getMiliseconds,
-        getFhirCaseIdProc, getProcId, getFhirProcId, getSelPolyData } from './utils';
+        getFhirCaseIdProc, getProcId, getFhirProcId, getSelPolyData, getProcDate, setProcListText } from './utils';
 import { DiagnosisRow, PolySomnoView } from './elements';
 
 
@@ -55,7 +55,7 @@ function transformIntoProcObsArray(fhir_proc_array: Procedure[]):IProc[] {
     const procedures: IProc[] = [];
 
     const createProcAndAppend = (proc: Procedure) => {
-        const a_proc: IProc = {fhir_case_id: getFhirCaseIdProc(proc), proc_id: getProcId(proc), timestamp: "", fhir_proc_id: getFhirProcId(proc)};
+        const a_proc: IProc = {fhir_case_id: getFhirCaseIdProc(proc), proc_id: getProcId(proc), timestamp: getProcDate(proc), fhir_proc_id: getFhirProcId(proc)};
         procedures.push(a_proc);
     }
 
@@ -226,11 +226,11 @@ export const DetailsView = ({
                                         >
                                             <Button 
                                                 rightIcon="caret-down"
-                                                text={selected_proc ? "( " + selected_proc.proc_id + " )" : "No Selection"}
+                                                text={selected_proc ? setProcListText(selected_proc.timestamp, selected_proc.proc_id) : "No Selection"}
                                             />
                                         </ProcSelect>
                                     ) : (
-                                        <div className={`details-view__no-list-div`}>{"( " + selected_proc.proc_id + " )"}</div>
+                                        <div className={`details-view__no-list-div`}>{setProcListText(selected_proc.timestamp, selected_proc.proc_id)}</div>
                                     )
                                 }
                             </div>

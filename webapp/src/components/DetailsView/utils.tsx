@@ -222,6 +222,14 @@ export function getProcId(proc: Procedure) {
     }
 }
 
+export function getProcDate(proc: Procedure) {
+    if (proc.performedDateTime) {
+        return convertToGermanDateFormat(proc.performedDateTime);
+    } else {
+        return "No Identifier exists";
+    }
+}
+
 export function getFhirProcId(proc: Procedure) {
     if (proc.id) {
         return proc.id;
@@ -320,6 +328,11 @@ export const convertToGermanDateFormat = (date: string) => {
 /**
  * Functions for Rendering the Selection
  */
+
+export function setProcListText(timestamp: string, proc_id: string) {
+    const spaces = 4;
+    return  timestamp + Array(spaces).fill('\xa0').join('') + "( " + proc_id + " )"
+}
 
 export function setText(start: string, end: string, case_id: string) {
 
