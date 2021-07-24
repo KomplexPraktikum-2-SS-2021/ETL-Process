@@ -15,8 +15,9 @@ function getDateTime(fhir_datetime: string) {
     return split_1[0] + " " + split_1[1].split(".", 2)[0]
 }
 
-export function getMiliseconds(fhir_datetime: string) {
-    return new Date(fhir_datetime.split(".", 2)[0]).getTime();
+export function getMiliseconds(date_german_format: string) {
+    const date_list = date_german_format.split(".", 3);
+    return new Date(date_list[2] + "-" + date_list[1] + "-" + date_list[0]).getTime();
 }
 
 function createObservEntry(observ: Observation) {
