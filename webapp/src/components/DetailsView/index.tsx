@@ -275,10 +275,6 @@ interface LabelProps {
     text: string
 }
 
-interface SelectedProps {
-    cases: ICase[]
-}
-
 interface DetailProps {
     encounters: Encounter[],
     procedures: Procedure[],

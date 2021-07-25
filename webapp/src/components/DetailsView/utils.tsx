@@ -33,7 +33,7 @@ function createObservEntry(observ: Observation) {
     mapping_code_name.set('custom::sleepLatency', 'Schlaflatenz');
     mapping_code_name.set('custom::arousalIndex', 'Arousal Index');
 
-    return {name: mapping_code_name.get(getObsCode(observ)), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ)};
+    return {name: mapping_code_name.get(getObsCode(observ)), code: getObsCode(observ), unit: getObsUnit(observ), value: getObsValue(observ), order: 0};
 }
 
 // returns the Poly Data filtered by the selected procedure id
@@ -76,8 +76,8 @@ export function getSelPolyData(observations :Map<String, Observation[]>, fhir_pr
     }
 
     fhir_observations.forEach(x => createObservAndAppend(x));
-    new_observations.push({name: "RDI / AHI", value: calculateRDIpAHI(), code: "", unit: "n/h"});
-    new_observations.push({name: "Schnarchen Total", value: calculateTotalSchnarchen(), code: "", unit: "%TST"});
+    new_observations.push({name: "RDI / AHI", value: calculateRDIpAHI(), code: "", unit: "", order: 0});
+    new_observations.push({name: "Schnarchen Total", value: calculateTotalSchnarchen(), code: "", unit: "%TST", order: 0});
 
     return new_observations;
 }
@@ -277,7 +277,11 @@ function getObsCode(observ: Observation) {
 function getObsUnit(observ: Observation) {
     if (observ.valueQuantity) {
         if (observ.valueQuantity.unit) {
-            return observ.valueQuantity.unit;
+            if (observ.valueQuantity.unit === "{events}/h") {
+                return "n/h"
+            } else {
+                return observ.valueQuantity.unit;
+            }
         } else {
             return "";
         }
@@ -453,7 +457,8 @@ export interface IObservEntry {
     code: string,   // Code of the observation
     value: number,  // 
     unit:string,
-    name: string
+    name: string,
+    order: number
 }
 
 export interface FilterProps {

@@ -27,7 +27,7 @@ export const DiagnosisRow = ({
                     ) : "nicht verfügbar"
                 }
             </div>
-            <b>Entlassung:</b>
+            <b style={{"marginLeft": "40px"}}>Entlassung:</b>
             <div className={`diag-entry`}>
                 {
                     diag_discharge? (
@@ -91,28 +91,55 @@ function convertIntoDoubleEntries(observations: IObservEntry[]) {
     return new_observations;
 }
 
+function sortObservations(observations: IObservEntry[]) {
+    let mapping_code_name = new Map()
+    mapping_code_name.set('Apnea Index', 1);
+    mapping_code_name.set('Hypnopnea Index', 2);
+    mapping_code_name.set('RERA Index', 3);
+    mapping_code_name.set('AHI', 4);
+    mapping_code_name.set('RDI', 5);
+    mapping_code_name.set('RDI / AHI', 6);
+    mapping_code_name.set('Totale Schlafzeit', 11);
+    mapping_code_name.set('PLM Index', 8);
+    mapping_code_name.set('Schnarchzeit', 9);
+    mapping_code_name.set('Schlaflatenz', 10);
+    mapping_code_name.set('Schnarchen Total', 12);
+    mapping_code_name.set('Arousal Index', 7);
+
+    let i = 0;
+    while (i < observations.length) {
+        observations[i].order = mapping_code_name.get(observations[i].name);
+        i += 1;
+    }
+
+    observations.sort((a, b) => {
+        return a.order - b.order;
+    })
+
+    return observations;
+}
+
 export const PolySomnoView = ({
     observations
 }: PolyProps) => {
-    console.log("Observs: ", observations);
-    const m_observations = convertIntoDoubleEntries(observations);
-    console.log(m_observations);
+    //const m_observations = convertIntoDoubleEntries(observations);
+    const m_observations = sortObservations(observations);
 
     if (observations.length !== 0) {
         return (
             <table className={`poly-data-table`}>
-                <TableRow attrib_1_title={observations[0].name} attrib_1_value={observations[0].value.toString()} attrib_1_unit={observations[0].unit}
-                            attrib_2_title={observations[1].name} attrib_2_value={observations[1].value.toString()} attrib_2_unit={observations[1].unit}/>
-                <TableRow attrib_1_title={observations[2].name} attrib_1_value={observations[2].value.toString()} attrib_1_unit={observations[2].unit}
-                            attrib_2_title={observations[3].name} attrib_2_value={observations[3].value.toString()} attrib_2_unit={observations[3].unit}/>
-                <TableRow attrib_1_title={observations[4].name} attrib_1_value={observations[4].value.toString()} attrib_1_unit={observations[4].unit}
-                            attrib_2_title={observations[5].name} attrib_2_value={observations[5].value.toString()} attrib_2_unit={observations[5].unit}/>
-                <TableRow attrib_1_title={observations[6].name} attrib_1_value={observations[6].value.toString()} attrib_1_unit={observations[6].unit}
-                            attrib_2_title={observations[7].name} attrib_2_value={observations[7].value.toString()} attrib_2_unit={observations[7].unit}/>
-                <TableRow attrib_1_title={observations[8].name} attrib_1_value={observations[8].value.toString()} attrib_1_unit={observations[8].unit}
-                            attrib_2_title={observations[9].name} attrib_2_value={observations[9].value.toString()} attrib_2_unit={observations[9].unit}/>
-                <TableRow attrib_1_title={observations[10].name} attrib_1_value={observations[10].value.toString()} attrib_1_unit={observations[10].unit}
-                            attrib_2_title={observations[11].name} attrib_2_value={observations[11].value.toString()} attrib_2_unit={observations[11].unit}/>
+                <TableRow attrib_1_title={m_observations[0].name} attrib_1_value={m_observations[0].value.toString()} attrib_1_unit={m_observations[0].unit}
+                            attrib_2_title={m_observations[1].name} attrib_2_value={m_observations[1].value.toString()} attrib_2_unit={m_observations[1].unit}/>
+                <TableRow attrib_1_title={m_observations[2].name} attrib_1_value={m_observations[2].value.toString()} attrib_1_unit={m_observations[2].unit}
+                            attrib_2_title={m_observations[3].name} attrib_2_value={m_observations[3].value.toString()} attrib_2_unit={m_observations[3].unit}/>
+                <TableRow attrib_1_title={m_observations[4].name} attrib_1_value={m_observations[4].value.toString()} attrib_1_unit={m_observations[4].unit}
+                            attrib_2_title={m_observations[5].name} attrib_2_value={m_observations[5].value.toString()} attrib_2_unit={m_observations[5].unit}/>
+                <TableRow attrib_1_title={m_observations[6].name} attrib_1_value={m_observations[6].value.toString()} attrib_1_unit={m_observations[6].unit}
+                            attrib_2_title={m_observations[7].name} attrib_2_value={m_observations[7].value.toString()} attrib_2_unit={m_observations[7].unit}/>
+                <TableRow attrib_1_title={m_observations[8].name} attrib_1_value={m_observations[8].value.toString()} attrib_1_unit={m_observations[8].unit}
+                            attrib_2_title={m_observations[9].name} attrib_2_value={m_observations[9].value.toString()} attrib_2_unit={m_observations[9].unit}/>
+                <TableRow attrib_1_title={m_observations[10].name} attrib_1_value={m_observations[10].value.toString()} attrib_1_unit={m_observations[10].unit}
+                            attrib_2_title={m_observations[11].name} attrib_2_value={m_observations[11].value.toString()} attrib_2_unit={m_observations[11].unit}/>
             </table>
         )
     } else {
