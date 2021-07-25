@@ -60,6 +60,9 @@ function transformIntoProcObsArray(fhir_proc_array: Procedure[]):IProc[] {
     }
 
     fhir_proc_array.forEach(x => createProcAndAppend(x));
+    procedures.sort((a, b) => {
+        return getMiliseconds(b.timestamp) - getMiliseconds(a.timestamp);
+    })
 
     return procedures;
 }
@@ -180,8 +183,12 @@ export const DetailsView = ({
     }, [], )
 
     function moreThanOneProcedures(){
-        if (m_procedures.length > 1) {
-            return true;
+        if (proc_list !== undefined) {
+            if (proc_list.length > 1) {
+                return true;
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

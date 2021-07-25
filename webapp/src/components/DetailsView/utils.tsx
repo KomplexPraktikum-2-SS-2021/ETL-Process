@@ -414,7 +414,7 @@ export const renderProc: ItemRenderer<IProc> = (item: IProc, itemProps: IItemRen
         <MenuItem
             key={item.proc_id}
             onClick={itemProps.handleClick}
-            text={"(" + item.proc_id + ")"}
+            text={setProcListText(item.timestamp, item.proc_id)}
         />
     )
 };
