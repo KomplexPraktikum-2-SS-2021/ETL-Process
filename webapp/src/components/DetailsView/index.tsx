@@ -114,7 +114,6 @@ export const DetailsView = ({
 }: DetailProps) => {
 
     const cases = transformIntoArray(encounters);
-    console.log("cases: ", encounters);
     const diagnoses = transformIntoDiagArray(conditionMap);
     const m_procedures: IProc[] = transformIntoProcObsArray(procedures);
 
@@ -194,23 +193,41 @@ export const DetailsView = ({
         }
     }
 
+    function moreThanOneCases() {
+        if (cases !== undefined) {
+            if (cases.length > 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
     return (
         <div className={`details-view-container`}>
             <h2>Detailinformationen</h2>
             <div className={`details-view-info-container`}>
                 <div className={`details-view__label-selection-element`}>
                     <Label text="Fall"/>
-                    <CaseSelect
-                        items={cases}
-                        itemPredicate={filterCase}
-                        itemRenderer={renderCase}   /** renderCase: determines, how the case entry is displayed in the Selection List */
-                        onItemSelect={handleCaseSelect}
-                    >
-                        <Button 
-                            rightIcon="caret-down"
-                            text={selected_case ? setText(selected_case.start, selected_case.end, selected_case.case_id) : "No Selection"}
-                        />
-                    </CaseSelect>
+                    {
+                        moreThanOneCases() ? (
+                            <CaseSelect
+                                items={cases}
+                                itemPredicate={filterCase}
+                                itemRenderer={renderCase}   /** renderCase: determines, how the case entry is displayed in the Selection List */
+                                onItemSelect={handleCaseSelect}
+                            >
+                                <Button 
+                                    rightIcon="caret-down"
+                                    text={selected_case ? setText(selected_case.start, selected_case.end, selected_case.case_id) : "No Selection"}
+                                />
+                            </CaseSelect>
+                        ) : (
+                            <div className={`details-view__no-list-div`}>{setText(selected_case.start, selected_case.end, selected_case.case_id)}</div>
+                        )
+                    }
                 </div>
                 <h3 className={`section-beginning`}>Diagnose</h3>
                 <DiagnosisRow
@@ -218,35 +235,37 @@ export const DetailsView = ({
                     diag_discharge={diag.discharge}
                 />
                 <h3 className={`section-beginning`}>Polysomnographie Befunde</h3>
-                {
-                    selected_proc? (
-                        <> 
-                            <div className={`details-view__label-selection-element`}>
-                                <Label text="Befund"/>
-                                {
-                                    moreThanOneProcedures()? (
-                                        <ProcSelect
-                                            items={proc_list}
-                                            itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
-                                            onItemSelect={handleProcSelect}
-                                            filterable={false}
-                                        >
-                                            <Button 
-                                                rightIcon="caret-down"
-                                                text={selected_proc ? setProcListText(selected_proc.timestamp, selected_proc.proc_id) : "No Selection"}
-                                            />
-                                        </ProcSelect>
-                                    ) : (
-                                        <div className={`details-view__no-list-div`}>{setProcListText(selected_proc.timestamp, selected_proc.proc_id)}</div>
-                                    )
-                                }
-                            </div>
-                            <PolySomnoView observations={poly_somno_data}/>
-                        </>
-                    ) : (
-                        <div> keine Befunde verfügbar </div>
-                    )
-                }
+                <div className={`details-view__poly-data-area`}>
+                    {
+                        selected_proc? (
+                            <> 
+                                <div className={`details-view__label-selection-element`}>
+                                    <Label text="Befund"/>
+                                    {
+                                        moreThanOneProcedures()? (
+                                            <ProcSelect
+                                                items={proc_list}
+                                                itemRenderer={renderProc}   /** renderCase: determines, how the case entry is displayed in the Selection List */
+                                                onItemSelect={handleProcSelect}
+                                                filterable={false}
+                                            >
+                                                <Button 
+                                                    rightIcon="caret-down"
+                                                    text={selected_proc ? setProcListText(selected_proc.timestamp, selected_proc.proc_id) : "No Selection"}
+                                                />
+                                            </ProcSelect>
+                                        ) : (
+                                            <div className={`details-view__no-list-div`}>{setProcListText(selected_proc.timestamp, selected_proc.proc_id)}</div>
+                                        )
+                                    }
+                                </div>
+                                <PolySomnoView observations={poly_somno_data}/>
+                            </>
+                        ) : (
+                            <div> keine Befunde verfügbar </div>
+                        )
+                    }
+                </div>
             </div>
         </div>
     )

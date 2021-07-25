@@ -24,7 +24,7 @@ export const DiagnosisRow = ({
                 {
                     diag_admission? (
                         setDiagText(diag_admission.name, diag_admission.code)
-                    ) : null
+                    ) : "nicht verfügbar"
                 }
             </div>
             <b>Entlassung:</b>
@@ -32,7 +32,7 @@ export const DiagnosisRow = ({
                 {
                     diag_discharge? (
                         setDiagText(diag_discharge.name, diag_discharge.code)
-                    ) : null
+                    ) : "nicht verfügbar"
                 }
             </div>
         </div>

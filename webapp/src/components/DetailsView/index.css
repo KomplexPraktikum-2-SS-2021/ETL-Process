@@ -21,12 +21,14 @@
 
 .details-view-label {
     margin-right: 30px;
+    display: flex;
+    align-items: center;
 }
 
 /*Diagnosis Area*/
 
 .details-view__diag-row {
-    margin-left: 20px;
+    margin-left: 10px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -34,6 +36,10 @@
 
 
 /*Poly Somno Data View*/
+
+.details-view__poly-data-area {
+    margin-left: 10px;
+}
 
 .poly-data-table {
     border: none !important;
